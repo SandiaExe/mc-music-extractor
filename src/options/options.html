@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MC Player Settings</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #121212; color: white; }
+    .card { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 600px; margin: auto; border: 1px solid #333; }
+    h2 { color: #55a630; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; }
+    
+    .setting-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #252525; padding: 15px; border-radius: 8px; }
+    .setting-info { font-size: 14px; color: #ccc; }
+    input[type="checkbox"] { transform: scale(1.5); accent-color: #55a630; cursor: pointer; }
+    input[type="range"] { width: 150px; accent-color: #55a630; }
+    
+    /* Importer */
+    .upload-area { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 8px; }
+    .upload-area:hover { border-color: #55a630; background: #252525; }
+    label { cursor: pointer; display: inline-block; padding: 10px 20px; background: #2d6a4f; color: white; border-radius: 4px; font-weight: bold; }
+    input[type="file"] { display: none; }
+    
+    .log-box { margin-top: 15px; background: #000; height: 150px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 12px; display: none; }
+    .log-item { color: #70e000; border-bottom: 1px solid #222; }
+    .log-item.error { color: #ff595e; }
+    
+    .delay-val { font-weight: bold; color: #70e000; width: 40px; text-align: right; display: inline-block; }
+
+    .guide-box { margin-bottom: 20px; background: #252525; border-radius: 8px; border: 1px solid #333; overflow: hidden; }
+    .guide-box summary { padding: 12px 15px; cursor: pointer; color: #8EC596; font-size: 14px; list-style: none; }
+    .guide-box summary::-webkit-details-marker { display: none; }
+    .guide-box summary:hover { background: #2a2a2a; }
+    .guide-content { padding: 0 15px 15px; font-size: 13px; color: #ccc; line-height: 1.5; border-top: 1px solid #333; }
+    .guide-content p { margin: 10px 0 6px 0; }
+    .guide-content ul { margin: 6px 0; padding-left: 20px; }
+    .guide-content li { margin: 4px 0; }
+    .guide-content code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #8EC596; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Settings</h1>
+
+    <details class="guide-box">
+      <summary><strong>Guide: Where to find game music (by operating system)</strong></summary>
+      <div class="guide-content">
+        <p><strong>Minecraft Java Edition</strong> — You need the <code>assets</code> folder from your installation. When choosing a folder, you need the sound files (usually the <code>assets</code> folder).</p>
+        <ul>
+          <li><strong>Windows:</strong> <code>%appdata%\.minecraft\assets</code> (type <code>%appdata%</code> in the File Explorer and go to <code>.minecraft\assets</code>).</li>
+          <li><strong>Mac:</strong> <code>~/Library/Application Support/minecraft/assets</code> (Go menu → Go to Folder and paste the path).</li>
+          <li><strong>Linux:</strong> <code>~/.minecraft/assets</code> (show hidden folders in your file manager and go to <code>.minecraft\assets</code>).</li>
+        </ul>
+        <p><strong>Steps:</strong> 1) Open the path for your OS. 2) Click "Select Assets Folder" and choose the <strong>assets</strong> folder (the one containing <code>indexes</code> and <code>objects</code>). 3) Wait for the import to finish and restart the extension if prompted.</p>
+      </div>
+    </details>
+
+    <div class="upload-area">
+      <p>Import Music</p>
+      <label for="folderInput">📂 Select Assets Folder</label>
+      <input type="file" id="folderInput" webkitdirectory directory />
+      
+      <div id="progressBox" style="display:none; margin-top:15px;">
+        <div style="background:#333; height:8px; border-radius:4px; overflow:hidden;">
+            <div id="pFill" style="background:#55a630; height:100%; width:0%"></div>
+        </div>
+        <div id="statusMsg" style="font-size:12px; margin-top:5px; color:#aaa;">Preparing...</div>
+      </div>
+    </div>
+    <div class="log-box" id="logWindow"></div>
+
+    <h2>Environment</h2>
+    <div class="setting-row">
+      <div class="setting-info">
+        <strong>Enable on startup</strong><br>
+        Play music when you open the browser.
+      </div>
+      <input type="checkbox" id="checkAutoplay">
+    </div>
+
+    <div class="setting-row" id="delayRow">
+      <div class="setting-info">
+        <strong>Wait time (seconds)</strong>
+      </div>
+      <div>
+        <input type="range" id="rangeDelay" min="0" max="60" value="5">
+        <span class="delay-val" id="valDelay">5s</span>
+      </div>
+    </div>
+
+     <div class="setting-row">
+      <div class="setting-info">
+        <strong>Visual Theme</strong><br>
+        Choose the color palette for the player.
+      </div>
+      <div>
+        <select id="selectTheme" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid #555;">
+          </select>
+      </div>
+    </div>
+
+  </div> <script type="module" src="options.js"></script>
+</body>
+</html>

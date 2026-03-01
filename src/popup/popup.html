@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body>
+
+  <div class="sky-container">
+    <div id="audioVisualizer" class="visualizer-container"></div>
+
+    <div class="sky-info">
+      <p class="label">Now playing:</p>
+      <h2 id="skyTitle" class="scrolling-text">Nothing playing</h2>
+    </div>
+
+    <div class="jukebox-wrapper" id="jukeboxContainer">
+      <div id="particleSystem"></div>
+      
+      <img src="../../assets/jukebox.png" class="jukebox-img">
+      
+      <div class="status-overlay" id="statusOverlay">
+        <img src="../../assets/play_icon.png">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="importNotice" class="import-notice hidden">
+      <p>To use the player, you must import the game songs in <strong>Settings</strong> first.</p>
+      <button id="btnNoticeConfig" class="notice-btn">Go to Settings</button>
+      <button id="btnDismissNotice" class="notice-dismiss" title="Close">×</button>
+    </div>
+
+    <div class="top-bar">
+      <div class="search-box">
+        <img src="../../assets/search.png" class="icon-ui">
+        <input type="text" id="searchInput" placeholder="Search...">
+      </div>
+      <button id="btnReload" class="icon-btn" title="Restart">
+        <img src="../../assets/reload.png" class="icon-ui">
+      </button>
+      <button id="btnSettings" class="icon-btn" title="Settings">
+        <img src="../../assets/settings.png" class="icon-ui">
+      </button>
+    </div>
+
+    <div class="track-info">
+      <h3 id="trackTitle">Select a song</h3>
+    </div>
+
+    <div class="progress-wrapper">
+      <span id="currTime">0:00</span>
+      <input type="range" id="progressBar" value="0" min="0" step="1">
+      <span id="totTime">0:00</span>
+    </div>
+
+    <div class="controls">
+      <button id="btnPrev" class="ctrl-btn small">⏮</button>
+      <button id="btnPlayPause" class="ctrl-btn big">▶</button>
+      <button id="btnNext" class="ctrl-btn small">⏭</button>
+    </div>
+
+    <button id="btnShuffle" class="shuffle-btn">
+      <img src="../../assets/shuffle.png" class="icon-small">
+      <span id="shuffleText">Random: OST</span>
+    </button>
+
+    <div class="volume-wrapper">
+      <img src="../../assets/volume.png" class="icon-ui">
+      <input type="range" id="volumeBar" min="0" max="1" step="0.05" value="1">
+    </div>
+
+    <div id="searchResultsContainer" class="search-results-container hidden">
+      <ul id="searchResultsList" class="scroll-list search-results-list"></ul>
+    </div>
+
+    <div class="library" id="librarySection">
+      
+      <details id="detDiscs">
+        <summary class="radio-header">
+          <div class="header-title">
+            <img src="../../assets/disc_icon.png" class="icon-small"> 
+            <span>Music Discs (<span id="cntDiscs">0</span>)</span>
+          </div>
+          <span class="arrow">▼</span>
+        </summary>
+        <ul id="listDiscs" class="scroll-list"></ul>
+      </details>
+      
+      <div class="library-spacer"></div>
+      
+      <details id="detOst">
+        <summary class="radio-header">
+          <div class="header-title">
+            <img src="../../assets/piano.png" class="icon-small">
+            <span>Soundtrack (<span id="cntOst">0</span>)</span>
+          </div>
+          <span class="arrow">▼</span>
+        </summary>
+        <ul id="listOst" class="scroll-list"></ul>
+      </details>
+
+    </div>
+
+</body>
+</html>

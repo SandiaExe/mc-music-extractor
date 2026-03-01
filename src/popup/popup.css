@@ -1,0 +1,487 @@
+/* =========================================
+   FUENTE MINECRAFT
+   ========================================= */
+@font-face {
+  font-family: 'Minecraft';
+  /* Ruta relativa desde src/popup/ hacia assets/ */
+  src: url('../../assets/minecraft.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* =========================================
+   VARIABLES & BASE
+   ========================================= */
+:root {
+  /* Variables por defecto (Sage Theme) */
+  --bg-sky-top: #9CAF88;
+  --bg-sky-bot: #859874;
+  --card-bg: #1E1E1E;
+  --input-bg: #2C2C2C;
+  --accent: #8EC596; 
+  --accent-hover: #A8D5AF;
+  --text-sky: #1a2516;
+  --border-sky: #3e5235;
+  
+  --text-primary: #E0E0E0;
+  --text-secondary: #A0A0A0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 340px;
+  margin: 0;
+  /* APLICAMOS LA FUENTE AQUÍ */
+  font-family: 'Minecraft', sans-serif; 
+  /* Ajuste para que la fuente pixelada se vea nítida */
+  -webkit-font-smoothing: none; 
+  background: linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-bot) 100%);
+  color: var(--text-primary);
+  user-select: none;
+  overflow: hidden;
+}
+
+/* =========================================
+   ZONA SUPERIOR
+   ========================================= */
+.sky-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  height: 140px;
+  
+  /* ESTA LÍNEA ES OBLIGATORIA PARA QUE EL VISUALIZADOR NO SE VAYA ABAJO */
+  position: relative; 
+  
+  overflow: hidden; /* Opcional: para que las barras no se salgan si crecen mucho */
+}
+
+.sky-info { flex: 1; padding-right: 15px; z-index: 2; }
+
+.label {
+  font-size: 12px; /* Un pelín más grande para esta fuente */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-sky);
+  opacity: 0.8;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 0px rgba(255,255,255,0.2); /* Sombra sutil estilo MC */
+}
+
+#skyTitle {
+  margin: 0;
+  font-size: 18px; /* Aumentado para legibilidad */
+  font-weight: normal; /* La fuente MC no necesita bold */
+  color: var(--text-sky);
+  border-bottom: 3px solid var(--border-sky);
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+  padding-bottom: 4px;
+  line-height: 1.2;
+}
+
+/* JUKEBOX */
+.jukebox-wrapper {
+  position: relative;
+  width: 72px; height: 72px;
+  transition: transform 0.2s;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); 
+}
+.jukebox-wrapper:active { transform: scale(0.95); }
+.jukebox-img { width: 100%; height: 100%; image-rendering: pixelated; }
+
+/* Overlay */
+.status-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.4);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.jukebox-wrapper.paused .status-overlay { opacity: 1; }
+.status-overlay img { width: 30px; opacity: 1; }
+
+/* Partículas */
+#particleSystem { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+.note-particle {
+  position: absolute; width: 18px; height: 18px; top: 10px; left: 25px;
+  background-image: url('../../assets/note.png'); 
+  background-size: contain; background-repeat: no-repeat;
+  image-rendering: pixelated; opacity: 0;
+  animation: floatUp 2.5s ease-out forwards;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; transform: translateY(-15px) scale(1); }
+  100% { transform: translateY(-80px) translateX(var(--rnd-x)) rotate(var(--rnd-rot)); opacity: 0; }
+}
+
+/* =========================================
+   TARJETA OSCURA
+   ========================================= */
+.card {
+  background: var(--card-bg);
+  border-top-left-radius: 0px; /* Minecraft es cuadrado, quitamos curvas exageradas */
+  border-top-right-radius: 0px;
+  /* O mantenemos un borde sutil pixelado si prefieres */
+  border-top: 4px solid rgba(0,0,0,0.2);
+  padding: 24px;
+  min-height: 450px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4); 
+  position: relative;
+}
+
+/* Top Bar */
+.top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+
+.search-box {
+  flex: 1;
+  background: var(--input-bg);
+  /* Bordes cuadrados para estilo MC */
+  border: 2px solid #111; 
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.5), 1px 1px 0 rgba(255,255,255,0.1);
+}
+.search-box span { opacity: 0.5; font-size: 14px; }
+.search-box input {
+  background: transparent; border: none; color: white; width: 100%; outline: none; 
+  font-size: 14px; font-family: 'Minecraft', sans-serif;
+}
+
+.icon-btn {
+  background: var(--input-bg);
+  border: 2px solid #111;
+  cursor: pointer; 
+  width: 38px; 
+  height: 38px;
+  /* FLEXBOX PARA CENTRADO PERFECTO */
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  padding: 0; /* Importante: quitar padding interno */
+  
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.5);
+  transition: all 0.1s;
+}
+
+.icon-btn:hover { background: #383838; }
+.icon-btn:active { border-color: #000; box-shadow: inset 4px 4px 0px rgba(0,0,0,0.8); transform: translateY(1px); }
+
+/* Titulo Cancion */
+.track-info { text-align: center; margin-bottom: 20px; }
+#trackTitle {
+  color: var(--accent);
+  font-size: 18px; margin: 0; letter-spacing: 1px;
+  text-shadow: 2px 2px 0px #111;
+}
+
+/* =========================================
+   SLIDERS (Estilo Minecraft)
+   ========================================= */
+.progress-wrapper {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: var(--text-secondary); margin-bottom: 25px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+input[type=range] { appearance: none; width: 100%; background: transparent; cursor: pointer; }
+input[type=range]:focus { outline: none; }
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%; height: 8px;
+  background: #111; 
+  border-bottom: 1px solid #444;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px; width: 8px; /* Cuadrado rectangular */
+  background: var(--accent);
+  margin-top: -4px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.5), 1px 1px 0 #000;
+  transition: none;
+  image-rendering: pixelated;
+}
+input[type=range]:hover::-webkit-slider-thumb { background: var(--accent-hover); }
+
+/* =========================================
+   CONTROLES
+   ========================================= */
+.controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 25px; }
+
+.ctrl-btn { 
+  background: none; 
+  border: none; 
+  color: var(--text-secondary); 
+  cursor: pointer; 
+  transition: 0.1s; 
+  font-family: 'Minecraft', sans-serif;
+  
+  /* AUMENTAR TAMAÑO AQUÍ */
+  font-size: 32px; 
+  
+  /* Centrado vertical */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px; /* Altura fija para área de clic */
+}
+
+.ctrl-btn:hover { 
+  color: white; 
+  text-shadow: 0 0 4px white; 
+  transform: scale(1.1);
+}
+
+.ctrl-btn.big {
+  font-size: 24px;
+  background: var(--accent);
+  width: 64px; height: 64px;
+  /* Forma cuadrada con bordes sutiles */
+  border: 2px solid #000;
+  border-radius: 0; 
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,0.4), 4px 4px 0 rgba(0,0,0,0.5);
+  transition: transform 0.1s;
+}
+.ctrl-btn.big:hover {
+  background: var(--accent-hover);
+  transform: translateY(2px);
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,0.4), 2px 2px 0 rgba(0,0,0,0.5);
+}
+.ctrl-btn.big:active {
+  transform: translateY(4px);
+  box-shadow: none;
+  border-color: #000;
+}
+
+.shuffle-btn {
+  width: 100%; background: var(--input-bg);
+  border: 2px solid #111; color: var(--text-secondary);
+  padding: 12px; cursor: pointer;
+  font-family: 'Minecraft', sans-serif;
+  font-size: 14px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+  transition: 0.1s;
+}
+.shuffle-btn:hover { background: #333; color: var(--accent); text-shadow: 1px 1px 0 #000; }
+.shuffle-btn:active { background: #111; }
+
+.volume-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 0 5px; }
+.volume-wrapper .icon-ui { width: 24px; height: 24px; opacity: 0.9; }
+
+/* Aviso: importar canciones */
+.import-notice {
+  background: rgba(180, 100, 50, 0.25);
+  border: 2px solid var(--border-sky);
+  padding: 10px 36px 10px 12px;
+  margin-bottom: 16px;
+  position: relative;
+  font-size: 12px;
+  color: var(--text-primary);
+  border-radius: 2px;
+}
+.import-notice p { margin: 0 0 8px 0; }
+.import-notice .notice-btn {
+  background: var(--accent);
+  border: 2px solid #000;
+  color: #fff;
+  padding: 6px 12px;
+  font-family: 'Minecraft', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3), 2px 2px 0 #000;
+}
+.import-notice .notice-btn:hover { background: var(--accent-hover); }
+.import-notice .notice-dismiss {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+.import-notice .notice-dismiss:hover { color: #fff; }
+
+/* =========================================
+   LISTAS (ESTILO BOTÓN MC)
+   ========================================= */
+.library { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+
+details {
+  background: var(--input-bg);
+  border: 2px solid #111;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+summary {
+  list-style: none; cursor: pointer;
+  padding: 12px 15px; font-size: 14px; color: #ccc;
+  display: flex; justify-content: space-between; align-items: center;
+  text-shadow: 1px 1px 0 #000;
+}
+summary:hover { color: white; background: rgba(255,255,255,0.05); }
+summary::-webkit-details-marker { display: none; }
+
+.arrow { font-size: 10px; transition: transform 0.1s; }
+details[open] .arrow { transform: rotate(180deg); color: var(--accent); }
+
+.hidden { display: none !important; }
+
+.search-results-container {
+  background: var(--input-bg);
+  border: 2px solid #111;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+  margin-bottom: 10px;
+  max-height: 220px;
+  overflow: hidden;
+}
+.search-results-container .search-results-list {
+  max-height: 220px;
+}
+
+.scroll-list { 
+  list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; 
+  background: #151515;
+  border-top: 2px solid #111;
+}
+
+.scroll-list li {
+  padding: 10px 15px; font-size: 14px; color: #bbb;
+  border-bottom: 1px solid #222;
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  line-height: 1.2;
+}
+.scroll-list li:hover { background: #2a2a2a; color: white; }
+
+.scroll-list li.playing {
+  color: var(--accent);
+  background: rgba(0,0,0,0.3);
+  border-left: 4px solid var(--accent);
+  padding-left: 11px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Puntos indicadores (Cuadrados para MC style) */
+.status-dot { width: 6px; height: 6px; background: #444; flex-shrink: 0; border: 1px solid #000; }
+li.playing .status-dot { background: var(--accent); border-color: #fff; }
+
+/* Baneo */
+.ban-btn { background: transparent; border: none; opacity: 0.2; cursor: pointer; font-size: 14px; margin-left: auto; font-family: 'Minecraft', sans-serif;}
+li:hover .ban-btn { opacity: 0.6; }
+.ban-btn:hover { opacity: 1; transform: scale(1.1); color: #ff595e; text-shadow: 1px 1px 0 #000; }
+
+li.banned { background: #261a1a !important; }
+li.banned .track-name { text-decoration: line-through; opacity: 0.5; }
+li.banned .status-dot { background: #ff595e; }
+
+/* Scrollbars Cuadrados */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #555; border: 1px solid #111; }
+::-webkit-scrollbar-thumb:hover { background: #777; }
+
+/* --- CLASES DE UTILIDAD PARA ICONOS --- */
+
+/* Iconos generales de UI (Buscador, Volumen, Settings) */
+.icon-ui {
+  width: 20px;
+  height: 20px;
+  image-rendering: optimizeQuality;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+  display: block; /* Quita espacios extra */
+}
+
+/* Hover en botones */
+.icon-btn .icon-ui {
+  width: 20px; /* Un poco más grandes */
+  height: 20px;
+  opacity: 0.8;
+  display: block;
+}
+
+/* Iconos Pequeños (Listas, Shuffle) */
+.icon-small {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+  margin-right: 6px;
+}
+
+/* Ajuste para el header de las listas (alineación) */
+.header-title {
+  display: flex;
+  align-items: center;
+}
+
+/* Icono de Barrera (Ban) */
+.icon-ban {
+  width: 27px;
+  height: 27px;
+  image-rendering: optimizeQuality;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.ban-btn:hover .icon-ban {
+  opacity: 1;
+}
+
+/* Cuando está baneado, el icono se ve full */
+li.banned .icon-ban {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px #ff595e);
+}
+
+/* --- VISUALIZADOR DE AUDIO --- */
+.visualizer-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px; /* Altura máxima de las barras */
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 10px;
+  z-index: 0; /* Detrás del texto (que tiene z-index 2) */
+  pointer-events: none;
+  opacity: 0.4; /* Medio transparente como pediste */
+  mask-image: linear-gradient(to top, black 20%, transparent 100%); /* Desvanecido suave arriba */
+  -webkit-mask-image: linear-gradient(to top, black 20%, transparent 100%);
+}
+
+.vis-bar {
+  width: 6px; /* Ancho de cada barra */
+  background-color: var(--text-sky); /* Usa el color del tema actual */
+  border-radius: 2px 2px 0 0;
+  height: 0px; /* Altura inicial */
+  transition: height 0.2s ease;
+  will-change: height;
+}
+
+/* Animación de "baile" */
+@keyframes dance {
+  0% { height: 10%; }
+  50% { height: 80%; }
+  100% { height: 10%; }
+}
+
+/* Clase activa cuando suena música */
+.visualizer-container.active .vis-bar {
+  animation: dance 1s infinite ease-in-out;
+  /* El duration se aleatoriza en JS */
+}
