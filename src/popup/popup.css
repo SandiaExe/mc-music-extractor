@@ -276,7 +276,7 @@ input[type=range]:hover::-webkit-slider-thumb { background: var(--accent-hover);
 .shuffle-btn:active { background: #111; }
 
 .volume-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 0 5px; }
-.volume-wrapper .icon-ui { width: 24px; height: 24px; opacity: 0.9; }
+.volume-wrapper .icon-ui { width: 24px; height: 24px; opacity: 0.9; cursor: pointer; }
 
 /* Aviso: importar canciones */
 .import-notice {
@@ -359,10 +359,15 @@ details[open] .arrow { transform: rotate(180deg); color: var(--accent); }
 }
 
 .scroll-list li {
-  padding: 10px 15px; font-size: 14px; color: #bbb;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #bbb;
   border-bottom: 1px solid #222;
-  cursor: pointer; display: flex; align-items: center; gap: 10px;
-  line-height: 1.2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
 }
 .scroll-list li:hover { background: #2a2a2a; color: white; }
 
@@ -386,6 +391,10 @@ li:hover .ban-btn { opacity: 0.6; }
 li.banned { background: #261a1a !important; }
 li.banned .track-name { text-decoration: line-through; opacity: 0.5; }
 li.banned .status-dot { background: #ff595e; }
+
+.track-name {
+  flex: 1;
+}
 
 /* Scrollbars Cuadrados */
 ::-webkit-scrollbar { width: 8px; }

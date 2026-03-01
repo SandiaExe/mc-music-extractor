@@ -1,3 +1,12 @@
+/* Ok yes is vibecoded, fine, but it last works properly, yes? YES!?..
+I promised learns how works this extension, but man, the AI do everthing so damn fast. Well, is 
+not production, so this could be consider a experiment? I never used cursor before, but waos. so cool, so clean.
+
+Is a type of dark magic i guess. 
+
+Sorry if my english is bad, I'm not a native speaker, if you are a native speakear pls play minecraft
+with i would like to improve my english, i would to thank you. */
+
 const OFFSCREEN_PATH = 'src/offscreen/offscreen.html';
 let creating; // Variable de bloqueo
 
@@ -27,7 +36,7 @@ async function ensureOffscreenDocument() {
 
     try {
         await creating;
-        console.log("Motor de audio creado.");
+        console.log("Audio Engine is working! / So you open the console, and see the logs. YES IS VIBECODED!");
     } catch (err) {
         if (!err.message.startsWith('Only a single offscreen')) {
             console.error("Error creando offscreen:", err);

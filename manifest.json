@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Minecraft Jukebox Lite",
+  "name": "Jukebox Lite",
   "version": "1.0",
-  "description": "Minecraft music player but simpler.",
+  "description": "Jukebox music player but simpler and smoother.",
   "permissions": ["storage", "unlimitedStorage", "offscreen"],
  "action": {
     "default_popup": "src/popup/popup.html", 
@@ -16,6 +16,6 @@
     "open_in_tab": true
   },
   "icons": {
-    "128": "assets/icon.png" 
+    "128": "assets/icon_2.png" 
   }
 }

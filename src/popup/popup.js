@@ -30,15 +30,18 @@ const ui = {
     librarySection: document.getElementById('librarySection'),
     importNotice: document.getElementById('importNotice'),
     btnNoticeConfig: document.getElementById('btnNoticeConfig'),
-    btnDismissNotice: document.getElementById('btnDismissNotice')
+    btnDismissNotice: document.getElementById('btnDismissNotice'),
+    volIcon: document.getElementById('volumeIcon')
 };
+
+// I don't how works this code, but i'm sure it's a magic.
 
 ui.visualizer = document.getElementById('audioVisualizer');
 
 const MODES = [
     { txt: "🎹 Random: OST", id: 0 },
-    { txt: "📀 Random: Discos", id: 1 },
-    { txt: "🔀 Random: Todo", id: 2 }
+    { txt: "📀 Random: Discs", id: 1 },
+    { txt: "🔀 Random: All", id: 2 }
 ];
 
 let currMode = 0;
@@ -49,6 +52,17 @@ let bannedList = [];
 let currentTrackId = null; // Para marcar "playing" en resultados de búsqueda
 /** Lista de todas las pistas { id, displayName } para el buscador */
 let allTracksForSearch = [];
+let lastNonZeroVolume = 1;
+
+function updateVolumeIcon(volume) {
+    if (!ui.volIcon) return;
+    const v = typeof volume === 'number' ? volume : parseFloat(ui.vol?.value ?? '1');
+    if (v <= 0.001) {
+        ui.volIcon.src = '../../assets/volumen_not.png';
+    } else {
+        ui.volIcon.src = '../../assets/volume.png';
+    }
+}
 
 function sendMsg(msg, callback) {
     try {
@@ -131,7 +145,6 @@ function renderLists(files) {
         const spanName = document.createElement('span');
         spanName.className = 'track-name';
         spanName.textContent = getDisplayName(f);
-        spanName.onclick = () => sendMsg({ action: 'PLAY', trackName: f });
 
         const btnBan = document.createElement('button');
         btnBan.className = 'ban-btn';
@@ -144,6 +157,8 @@ function renderLists(files) {
             updateBannedVisuals();
             sendMsg({ action: 'TOGGLE_BAN', trackName: f });
         };
+
+        li.onclick = () => sendMsg({ action: 'PLAY', trackName: f });
 
         li.appendChild(spanName);
         li.appendChild(btnBan);
@@ -186,7 +201,7 @@ function renderSearchResults(query) {
         const span = document.createElement('span');
         span.className = 'track-name';
         span.textContent = displayName;
-        span.onclick = () => {
+        li.onclick = () => {
             sendMsg({ action: 'PLAY', trackName: id });
             if (ui.search) ui.search.value = "";
             renderSearchResults("");
@@ -225,6 +240,7 @@ function updateUI(status) {
     }
 
     if (ui.vol) ui.vol.value = status.volume ?? 1;
+    updateVolumeIcon(status.volume ?? 1);
     if (!isDragging) {
         ui.bar.max = status.duration || 100;
         ui.bar.value = status.currentTime || 0;
@@ -277,13 +293,49 @@ function formatTime(c, t) {
 
 // LISTENERS
 ui.btnReload.onclick = () => { if (confirm("¿Reiniciar extensión?")) chrome.runtime.reload(); };
-ui.jukebox.onclick = () => { sendMsg({ action: 'PAUSE' }); isPlaying = !isPlaying; updateJukeboxVisuals(); updateVisualizerState();};
-ui.playBtn.onclick = () => { sendMsg({ action: 'PAUSE' }); isPlaying = !isPlaying; updateJukeboxVisuals(); updateVisualizerState();};
+
+function handlePlayPauseClick() {
+    if (!currentTrackId) {
+        // No hay pista seleccionada: arrancar una aleatoria según el modo actual
+        sendMsg({ action: 'NEXT' });
+        isPlaying = true;
+        updateJukeboxVisuals();
+        updateVisualizerState();
+    } else {
+        sendMsg({ action: 'PAUSE' });
+        isPlaying = !isPlaying;
+        updateJukeboxVisuals();
+        updateVisualizerState();
+    }
+}
+
+ui.jukebox.onclick = handlePlayPauseClick;
+ui.playBtn.onclick = handlePlayPauseClick;
 ui.btnNext.onclick = () => sendMsg({ action: 'NEXT' });
 ui.btnPrev.onclick = () => sendMsg({ action: 'PREV' });
 ui.bar.addEventListener('input', () => isDragging = true);
 ui.bar.addEventListener('change', () => { isDragging = false; sendMsg({ action: 'SEEK_TO', time: parseFloat(ui.bar.value) }); });
-if (ui.vol) ui.vol.addEventListener('input', (e) => sendMsg({ action: 'SET_VOLUME', value: parseFloat(e.target.value) }));
+if (ui.vol) ui.vol.addEventListener('input', (e) => {
+    const value = parseFloat(e.target.value);
+    sendMsg({ action: 'SET_VOLUME', value });
+    if (value > 0) lastNonZeroVolume = value;
+    updateVolumeIcon(value);
+});
+if (ui.volIcon) ui.volIcon.addEventListener('click', () => {
+    if (!ui.vol) return;
+    const current = parseFloat(ui.vol.value);
+    if (current > 0.001) {
+        lastNonZeroVolume = current;
+        ui.vol.value = 0;
+        sendMsg({ action: 'SET_VOLUME', value: 0 });
+        updateVolumeIcon(0);
+    } else {
+        const restore = lastNonZeroVolume > 0.001 ? lastNonZeroVolume : 1;
+        ui.vol.value = restore;
+        sendMsg({ action: 'SET_VOLUME', value: restore });
+        updateVolumeIcon(restore);
+    }
+});
 ui.shuffle.onclick = () => { currMode = (currMode + 1) % MODES.length; sendMsg({ action: 'SET_SHUFFLE', mode: currMode }); ui.shuffleText.textContent = MODES[currMode].txt.replace(/^[^\s]+\s/, ''); };
 ui.btnSettings.onclick = () => chrome.runtime.openOptionsPage();
 if (ui.btnNoticeConfig) ui.btnNoticeConfig.onclick = () => chrome.runtime.openOptionsPage();
