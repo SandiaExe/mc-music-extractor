@@ -1,37 +1,45 @@
-# Minecraft Music Extractor (Chrome Extension)
+# 🎶 Minecraft Music Extractor (Chrome Extension)
 
 ![Minecraft Style](https://img.shields.io/badge/Style-Minecraft-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 
-Un reproductor de música minimalista para tu navegador que utiliza los archivos originales de tu instalación de **Minecraft**. Reproduce tanto el soundtrack como los discos del juego ;)
+A minimalist music player for your browser that uses the original audio files from your **Minecraft** installation. Play both the OST and In-game Music Discs with ease! ;)
 
 ---
 
-## Demostración
-![Demostración del Reproductor](./assets/demo.gif)
+## Demo
+![Player Demo](./assets/demo.gif)
 
 ---
 
-## Cómo configurarlo
-Para que el reproductor funcione, debes indicarle dónde están los sonidos de tu juego:
-
-1. Instala la extensión en tu navegador.
-2. Abre la configuración de la extensión.
-3. Haz clic en **"Select Assets Folder"**.
-4. Busca tu carpeta de Minecraft (usualmente en `.minecraft/assets`).
-5. ¡Listo! El reproductor organizará automáticamente los discos y el soundtrack.
+## ✨ Features
+* **Themed UI:** Pixel-art interface inspired by Minecraft's original GUI.
+* **Cohesive Design:** A clean and smooth interface built for **fast navigation**.
+* **Visual Themes:** Switch between different color palettes.
+* **Total Privacy:** The extension does not include any music files. It reads them directly from your local `assets` folder (so legal).
 
 ---
 
-## Aviso Legal (Disclaimer)
-Este proyecto **no distribuye, incluye ni descarga** archivos de audio protegidos por derechos de autor. Es una herramienta de software que permite reproducir archivos que el usuario ya posee legalmente en su computadora. 
+## ⚙️ How to Setup
+To make the player work, you must point it to your game's sound files:
 
-*Minecraft es una marca registrada de Mojang Synergies AB. Este proyecto no está afiliado ni respaldado por Mojang o Microsoft.*
+1. Install the extension in your browser.
+2. Open the extension **Settings**.
+3. Click on **"Select Assets Folder"**.
+4. Locate your Minecraft assets folder (usually found at `.minecraft/assets`).
+5. Done! The player will automatically organize the discs and the soundtrack for you.
 
 ---
 
-## Instalación para Desarrolladores
+## ⚖️ Legal Disclaimer
+This project **does not distribute, include, or download** any copyrighted audio files. It is a software tool that allows users to play files they already legally own on their local machine.
+
+*Minecraft is a registered trademark of Mojang Synergies AB. This project is not affiliated with or endorsed by Mojang or Microsoft.*
+
+---
+
+## 🛠️ Developer Installation
 ```bash
 git clone [https://github.com/SandiaExe/mc-music-extractor.git](https://github.com/SandiaExe/mc-music-extractor.git)
 cd mc-music-extractor
-# Carga la carpeta en chrome://extensions habilitando el modo desarrollador
+# Load the folder in chrome://extensions by enabling "Developer mode"
