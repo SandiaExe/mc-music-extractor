@@ -18,7 +18,7 @@ A minimalist music player for your browser that uses the original audio files fr
 * **Total Privacy:** The extension does not include any music files. It reads them directly from your local `assets` folder (so legal).
 
 <div align="center">
-  <img src="gif3.webp" />
+  <img src="webp1.webp" />
 </div>
 
 ---
