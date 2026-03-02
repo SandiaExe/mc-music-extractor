@@ -5,10 +5,9 @@
 
 A minimalist music player for your browser that uses the original audio files from your **Minecraft** installation. Play both the OST and In-game Music Discs with ease! ;)
 
----
-
-## Demo
-![Player Demo](./assets/demo.gif)
+<div align="center">
+  <img src="gif1.gif" />
+</div>
 
 ---
 
