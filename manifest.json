@@ -6,7 +6,7 @@
   "permissions": ["storage", "unlimitedStorage", "offscreen"],
  "action": {
     "default_popup": "src/popup/popup.html", 
-    "default_title": "Open Player"
+    "default_title": "Jukebox Lite"
   },
   "background": {
     "service_worker": "src/background/background.js" 

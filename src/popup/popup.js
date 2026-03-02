@@ -171,7 +171,7 @@ function renderLists(files) {
         const btnBan = document.createElement('button');
         btnBan.className = 'ban-btn';
         btnBan.innerHTML = '<img src="../../assets/barrier.png" class="icon-ban">';
-        btnBan.title = "Banear/Desbanear";
+        btnBan.title = "Ban/Unban";
         btnBan.onclick = (e) => {
             e.stopPropagation();
             if (bannedList.includes(f)) bannedList = bannedList.filter(x => x !== f);
