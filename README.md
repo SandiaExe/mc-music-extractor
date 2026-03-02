@@ -6,7 +6,7 @@
 A minimalist music player for your browser that uses the original audio files from your **Minecraft** installation. Play both the OST and In-game Music Discs with ease! ;)
 
 <div align="center">
-  <img src="gif1.gif" />
+  <img src=".github/images/gif1.gif" />
 </div>
 
 ---
@@ -18,7 +18,7 @@ A minimalist music player for your browser that uses the original audio files fr
 * **Total Privacy:** The extension does not include any music files. It reads them directly from your local `assets` folder (so legal).
 
 <div align="center">
-  <img src="webp1.webp" />
+  <img src=".github/images/webp1.webp" />
 </div>
 
 ---
@@ -33,7 +33,7 @@ To make the player work, you must point it to your game's sound files:
 5. Done! The player will automatically organize the discs and the soundtrack for you.
 
 <div align="center">
-  <img src="gif2.gif" />
+  <img src=".github/images/gif2.gif" />
 </div>
 
 ---
