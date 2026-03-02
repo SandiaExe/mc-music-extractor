@@ -8,7 +8,7 @@ let bannedTracks = [];
 let playHistory = []; // Últimas N para smart shuffle
 let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
-let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo
+let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random: No (sin auto/aleatorio)
 let currentTrackName = null;
 const HISTORY_SIZE = 4;
 const PLAY_ORDER_MAX = 100;
@@ -135,12 +135,20 @@ function playNext() {
     let pool = [];
     if (shuffleMode === 1) pool = playlist.records;
     else if (shuffleMode === 2) pool = playlist.all;
-    else pool = playlist.ost; // 0 = Random OST
+    else pool = playlist.ost; // 0 = Random OST, 3 = secuencial OST
 
     let validPool = pool.filter(t => !bannedTracks.includes(t));
     if (validPool.length === 0) return;
 
-    // Smart Shuffle (todos los modos son random ahora)
+    if (shuffleMode === 3) {
+        // Random: No — siguiente en orden secuencial
+        let idx = validPool.indexOf(currentTrackName);
+        idx = (idx + 1) % validPool.length;
+        playTrack(validPool[idx]);
+        return;
+    }
+
+    // Smart Shuffle (modos 0, 1, 2)
     let candidates = validPool.filter(t => !playHistory.includes(t));
     if (candidates.length === 0) candidates = validPool.filter(t => t !== currentTrackName);
     if (candidates.length === 0) candidates = validPool;
@@ -219,16 +227,17 @@ function loadSettings() {
 function toggleBan(t) {
     if (bannedTracks.includes(t)) bannedTracks = bannedTracks.filter(x => x !== t);
     else bannedTracks.push(t);
-    
-    // Guardar inmediatamente
+    // Persistir para siempre (chrome.storage.local no se borra al cerrar el navegador)
     chrome.storage.local.set({ banned: bannedTracks }, () => {
-        if(chrome.runtime.lastError) console.error("Error guardando:", chrome.runtime.lastError);
-        else console.log("Baneos guardados.");
+        if (chrome.runtime.lastError) console.error("Error guardando baneos:", chrome.runtime.lastError);
+        else console.log("Baneos guardados de forma permanente.");
     });
 }
 
-// Eventos Audio
-audio.onended = () => playNext();
+// Eventos Audio (modo 3 = Random: No → no pasar a la siguiente al terminar)
+audio.onended = () => {
+    if (shuffleMode !== 3) playNext();
+};
 let lastTime = 0;
 audio.ontimeupdate = () => {
     if (Date.now() - lastTime > 500) {

@@ -51,11 +51,30 @@ body {
   align-items: center;
   padding: 20px 30px;
   height: 140px;
-  
-  /* ESTA LÍNEA ES OBLIGATORIA PARA QUE EL VISUALIZADOR NO SE VAYA ABAJO */
-  position: relative; 
-  
-  overflow: hidden; /* Opcional: para que las barras no se salgan si crecen mucho */
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.sky-note-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sky-note {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  margin-top: -9px;
+  background-image: url('../../assets/note.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: floatUp 2.5s ease-out forwards;
 }
 
 .sky-info { flex: 1; padding-right: 15px; z-index: 2; }
@@ -262,18 +281,58 @@ input[type=range]:hover::-webkit-slider-thumb { background: var(--accent-hover);
   border-color: #000;
 }
 
+.shuffle-section {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
 .shuffle-btn {
-  width: 100%; background: var(--input-bg);
-  border: 2px solid #111; color: var(--text-secondary);
-  padding: 12px; cursor: pointer;
+  width: 100%;
+  background: var(--input-bg);
+  border: 2px solid #111;
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  cursor: pointer;
   font-family: 'Minecraft', sans-serif;
-  font-size: 14px; margin-bottom: 20px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
   transition: 0.1s;
 }
+
+.shuffle-btn .icon-shuffle {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
 .shuffle-btn:hover { background: #333; color: var(--accent); text-shadow: 1px 1px 0 #000; }
 .shuffle-btn:active { background: #111; }
+
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.library-details .header-title-library {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.library-details .icon-library {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
 
 .volume-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 0 5px; }
 .volume-wrapper .icon-ui { width: 24px; height: 24px; opacity: 0.9; cursor: pointer; }
@@ -318,7 +377,6 @@ input[type=range]:hover::-webkit-slider-thumb { background: var(--accent-hover);
 /* =========================================
    LISTAS (ESTILO BOTÓN MC)
    ========================================= */
-.library { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
 
 details {
   background: var(--input-bg);
@@ -426,7 +484,7 @@ li.banned .status-dot { background: #ff595e; }
 .icon-small {
   width: 26px;
   height: 26px;
-  image-rendering: pixelated;
+  image-rendering: optimizeQuality;
   margin-right: 6px;
 }
 

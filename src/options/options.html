@@ -1,86 +1,327 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>MC Player Settings</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #121212; color: white; }
-    .card { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 600px; margin: auto; border: 1px solid #333; }
-    h2 { color: #55a630; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; }
-    
-    .setting-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #252525; padding: 15px; border-radius: 8px; }
-    .setting-info { font-size: 14px; color: #ccc; }
-    input[type="checkbox"] { transform: scale(1.5); accent-color: #55a630; cursor: pointer; }
-    input[type="range"] { width: 150px; accent-color: #55a630; }
-    
-    /* Importer */
-    .upload-area { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 8px; }
-    .upload-area:hover { border-color: #55a630; background: #252525; }
-    label { cursor: pointer; display: inline-block; padding: 10px 20px; background: #2d6a4f; color: white; border-radius: 4px; font-weight: bold; }
-    input[type="file"] { display: none; }
-    
-    .log-box { margin-top: 15px; background: #000; height: 150px; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 12px; display: none; }
-    .log-item { color: #70e000; border-bottom: 1px solid #222; }
-    .log-item.error { color: #ff595e; }
-    
-    .delay-val { font-weight: bold; color: #70e000; width: 40px; text-align: right; display: inline-block; }
+    :root {
+      --opt-fallback-bg: #1e1e1e;
+      --opt-fallback-accent: #90c888;
+      --font-game: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
 
-    .guide-box { margin-bottom: 20px; background: #252525; border-radius: 8px; border: 1px solid #333; overflow: hidden; }
-    .guide-box summary { padding: 12px 15px; cursor: pointer; color: #8EC596; font-size: 14px; list-style: none; }
-    .guide-box summary::-webkit-details-marker { display: none; }
-    .guide-box summary:hover { background: #2a2a2a; }
-    .guide-content { padding: 0 15px 15px; font-size: 13px; color: #ccc; line-height: 1.5; border-top: 1px solid #333; }
-    .guide-content p { margin: 10px 0 6px 0; }
-    .guide-content ul { margin: 6px 0; padding-left: 20px; }
-    .guide-content li { margin: 4px 0; }
-    .guide-content code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #8EC596; }
+    body {
+      font-family: var(--font-game);
+      background: linear-gradient(180deg, var(--bg-sky-top, var(--opt-fallback-bg)) 0%, var(--bg-sky-bot, #2a2a2a) 100%);
+      color: var(--text-primary, #e0e0e0);
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .card {
+      background-color: var(--card-bg, var(--opt-fallback-bg));
+      width: 100%;
+      max-width: 550px;
+      padding: 30px;
+      border: 2px solid #111;
+      border-radius: 4px;
+      box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-top: 0;
+      margin-bottom: 25px;
+      color: var(--text-primary, #fff);
+      font-weight: bold;
+    }
+
+    h2 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary, #999);
+      margin-top: 40px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #111;
+      padding-bottom: 8px;
+    }
+
+    /* --- Collapsible Guide --- */
+    details.guide-box {
+      background-color: var(--input-bg, #262626);
+      border: 2px solid var(--border-sky, #3e5235);
+      border-radius: 2px;
+      margin-bottom: 30px;
+    }
+
+    summary {
+      padding: 12px 15px;
+      cursor: pointer;
+      color: var(--accent, var(--opt-fallback-accent));
+      font-size: 14px;
+      font-weight: bold;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: '+';
+      font-size: 16px;
+    }
+    details[open] summary::after {
+      content: '-';
+    }
+
+    .guide-content {
+      padding: 15px;
+      font-size: 13px;
+      color: #cccccc;
+      line-height: 1.5;
+      border-top: 2px solid var(--border-sky, #333);
+      background-color: rgba(0,0,0,0.25);
+    }
+
+    .guide-content code {
+      background: #111;
+      padding: 2px 6px;
+      color: var(--accent, var(--opt-fallback-accent));
+      font-family: var(--font-mono);
+      border: 1px solid #333;
+    }
+
+    /* --- Upload Area --- */
+    .upload-area {
+      border: 2px dashed var(--border-sky, #444);
+      background-color: rgba(0,0,0,0.15);
+      padding: 30px;
+      text-align: center;
+      border-radius: 2px;
+    }
+
+    .upload-title {
+      display: block;
+      margin-bottom: 15px;
+      color: var(--text-secondary, #999);
+      font-size: 14px;
+    }
+
+    label.btn-upload {
+      cursor: pointer;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: var(--accent, var(--opt-fallback-accent));
+      color: #111;
+      font-weight: bold;
+      border: 2px solid #111;
+      border-radius: 2px;
+      transition: background 0.1s;
+    }
+
+    label.btn-upload:hover {
+      background-color: var(--accent-hover, #a5d69d);
+    }
+
+    label.btn-upload:active {
+      transform: translateY(2px);
+    }
+
+    input[type="file"] { display: none; }
+
+    /* --- Progress & Logs --- */
+    #progressBox {
+      margin-top: 20px;
+    }
+    
+    .progress-bar-container {
+      background: var(--border-dark);
+      height: 8px;
+      border: 1px solid var(--border-light);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    #pFill {
+      background-color: var(--accent, var(--opt-fallback-accent));
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s;
+    }
+
+    .log-box {
+      margin-top: 15px;
+      background: #111;
+      height: 100px;
+      overflow-y: auto;
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      border: 2px solid #111;
+      display: none;
+    }
+    .log-item { color: var(--accent, var(--opt-fallback-accent)); margin-bottom: 4px; }
+    .log-item.error { color: #ff5555; }
+
+    /* --- Settings Rows --- */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 0;
+      border-bottom: 1px solid #111;
+    }
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info strong {
+      display: block;
+      font-size: 14px;
+      color: var(--text-primary, #fff);
+      margin-bottom: 4px;
+    }
+    .setting-info p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-secondary, #999);
+    }
+
+    /* --- Blocky Checkbox --- */
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: var(--input-bg, #333);
+      margin: 0;
+      color: currentColor;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #111;
+      border-radius: 2px;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"]::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      background-color: var(--accent, var(--opt-fallback-accent));
+      transform: scale(0);
+      transition: 100ms transform ease-in-out;
+    }
+
+    input[type="checkbox"]:checked::before {
+      transform: scale(1);
+    }
+
+    /* --- Range Slider (Matches player style) --- */
+    input[type="range"] {
+      appearance: none;
+      width: 130px;
+      height: 6px;
+      background: #111;
+      border: 1px solid #444;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 8px;
+      height: 18px;
+      background: var(--accent, var(--opt-fallback-accent));
+      cursor: pointer;
+      border: 1px solid #111;
+      border-radius: 1px;
+    }
+
+    .delay-val {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--accent, var(--opt-fallback-accent));
+      margin-left: 15px;
+      min-width: 25px;
+      display: inline-block;
+      text-align: right;
+    }
+
+    /* --- Select Dropdown --- */
+    select {
+      background-color: var(--input-bg, #333);
+      color: var(--text-primary, #e0e0e0);
+      border: 2px solid #111;
+      padding: 8px 12px;
+      font-family: var(--font-game);
+      font-size: 13px;
+      border-radius: 2px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent, var(--opt-fallback-accent));
+    }
   </style>
 </head>
 <body>
+
   <div class="card">
     <h1>Settings</h1>
 
     <details class="guide-box">
-      <summary><strong>Guide: Where to find game music (by operating system)</strong></summary>
+      <summary>Where to find game music?</summary>
       <div class="guide-content">
-        <p><strong>Minecraft Java Edition</strong> — You need the <code>assets</code> folder from your installation. When choosing a folder, you need the sound files (usually the <code>assets</code> folder).</p>
-        <ul>
-          <li><strong>Windows:</strong> <code>%appdata%\.minecraft\assets</code> (type <code>%appdata%</code> in the File Explorer and go to <code>.minecraft\assets</code>).</li>
-          <li><strong>Mac:</strong> <code>~/Library/Application Support/minecraft/assets</code> (Go menu → Go to Folder and paste the path).</li>
-          <li><strong>Linux:</strong> <code>~/.minecraft/assets</code> (show hidden folders in your file manager and go to <code>.minecraft\assets</code>).</li>
+        <p>You need the <code>assets</code> folder from your Minecraft installation.</p>
+        <ul style="padding-left: 20px; margin: 10px 0;">
+          <li><strong>Windows:</strong> <code>%appdata%\.minecraft\assets</code></li>
+          <li><strong>Mac:</strong> <code>~/Library/Application Support/minecraft/assets</code></li>
+          <li><strong>Linux:</strong> <code>~/.minecraft/assets</code></li>
         </ul>
-        <p><strong>Steps:</strong> 1) Open the path for your OS. 2) Click "Select Assets Folder" and choose the <strong>assets</strong> folder (the one containing <code>indexes</code> and <code>objects</code>). 3) Wait for the import to finish and restart the extension if prompted.</p>
+        <p>Select the root <strong>assets</strong> folder (the one containing "indexes" and "objects").</p>
       </div>
     </details>
 
     <div class="upload-area">
-      <p>Import Music</p>
-      <label for="folderInput">📂 Select Assets Folder</label>
+      <span class="upload-title">Import music files</span>
+      <label for="folderInput" class="btn-upload">🗂️ Select Assets Folder</label>
       <input type="file" id="folderInput" webkitdirectory directory />
       
-      <div id="progressBox" style="display:none; margin-top:15px;">
-        <div style="background:#333; height:8px; border-radius:4px; overflow:hidden;">
-            <div id="pFill" style="background:#55a630; height:100%; width:0%"></div>
+      <div id="progressBox" style="display:none;">
+        <div class="progress-bar-container">
+            <div id="pFill"></div>
         </div>
-        <div id="statusMsg" style="font-size:12px; margin-top:5px; color:#aaa;">Preparing...</div>
+        <div id="statusMsg" style="font-size:12px; margin-top:8px; color:var(--text-muted); text-align: center;">Preparing...</div>
       </div>
     </div>
+    
     <div class="log-box" id="logWindow"></div>
 
     <h2>Environment</h2>
+
     <div class="setting-row">
       <div class="setting-info">
-        <strong>Enable on startup</strong><br>
-        Play music when you open the browser.
+        <strong>Play on startup</strong>
+        <p>Play music when the browser opens.</p>
       </div>
-      <input type="checkbox" id="checkAutoplay">
+      <input type="checkbox" id="checkAutoplay" checked>
     </div>
 
     <div class="setting-row" id="delayRow">
       <div class="setting-info">
-        <strong>Wait time (seconds)</strong>
+        <strong>Wait time</strong>
+        <p>Interval between tracks.</p>
       </div>
-      <div>
+      <div style="display: flex; align-items: center;">
         <input type="range" id="rangeDelay" min="0" max="60" value="5">
         <span class="delay-val" id="valDelay">5s</span>
       </div>
@@ -88,15 +329,16 @@
 
      <div class="setting-row">
       <div class="setting-info">
-        <strong>Visual Theme</strong><br>
-        Choose the color palette for the player.
+        <strong>Visual Theme</strong>
+        <p>Player color palette.</p>
       </div>
       <div>
-        <select id="selectTheme" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid #555;">
-          </select>
+        <select id="selectTheme"></select>
       </div>
     </div>
 
-  </div> <script type="module" src="options.js"></script>
+  </div> 
+
+  <script type="module" src="options.js"></script>
 </body>
 </html>

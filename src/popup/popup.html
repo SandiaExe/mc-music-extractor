@@ -7,7 +7,8 @@
 </head>
 <body>
 
-  <div class="sky-container">
+  <div class="sky-container" id="skyContainer">
+    <div id="skyNoteLayer" class="sky-note-layer"></div>
     <div id="audioVisualizer" class="visualizer-container"></div>
 
     <div class="sky-info">
@@ -36,7 +37,7 @@
     <div class="top-bar">
       <div class="search-box">
         <img src="../../assets/search.png" class="icon-ui">
-        <input type="text" id="searchInput" placeholder="Search...">
+        <input type="text" id="searchInput" placeholder="Search..." title="Search songs">
       </div>
       <button id="btnReload" class="icon-btn" title="Restart">
         <img src="../../assets/reload.png" class="icon-ui">
@@ -52,24 +53,26 @@
 
     <div class="progress-wrapper">
       <span id="currTime">0:00</span>
-      <input type="range" id="progressBar" value="0" min="0" step="1">
+      <input type="range" id="progressBar" value="0" min="0" step="1" title="Seek">
       <span id="totTime">0:00</span>
     </div>
 
     <div class="controls">
-      <button id="btnPrev" class="ctrl-btn small">⏮</button>
-      <button id="btnPlayPause" class="ctrl-btn big">▶</button>
-      <button id="btnNext" class="ctrl-btn small">⏭</button>
+      <button id="btnPrev" class="ctrl-btn small" title="Previous track">⏮</button>
+      <button id="btnPlayPause" class="ctrl-btn big" title="Play / Pause">▶</button>
+      <button id="btnNext" class="ctrl-btn small" title="Next track">⏭</button>
     </div>
 
-    <button id="btnShuffle" class="shuffle-btn">
-      <img src="../../assets/shuffle.png" class="icon-small">
-      <span id="shuffleText">Random: OST</span>
-    </button>
+    <div class="shuffle-section">
+      <button id="btnShuffle" class="shuffle-btn" title="Change playback mode (random / sequential)">
+        <img src="../../assets/shuffle.png" class="icon-shuffle">
+        <span id="shuffleText">Random: OST</span>
+      </button>
+    </div>
 
     <div class="volume-wrapper">
-      <img src="../../assets/volume.png" id="volumeIcon" class="icon-ui">
-      <input type="range" id="volumeBar" min="0" max="1" step="0.05" value="1">
+      <img src="../../assets/volume.png" id="volumeIcon" class="icon-ui" title="Mute / Unmute">
+      <input type="range" id="volumeBar" min="0" max="1" step="0.05" value="1" title="Volume">
     </div>
 
     <div id="searchResultsContainer" class="search-results-container hidden">
@@ -78,10 +81,10 @@
 
     <div class="library" id="librarySection">
       
-      <details id="detDiscs">
+      <details id="detDiscs" class="library-details">
         <summary class="radio-header">
-          <div class="header-title">
-            <img src="../../assets/disc_icon.png" class="icon-small"> 
+          <div class="header-title header-title-library">
+            <img src="../../assets/disc_icon.png" class="icon-library"> 
             <span>Music Discs (<span id="cntDiscs">0</span>)</span>
           </div>
           <span class="arrow">▼</span>
@@ -91,10 +94,10 @@
       
       <div class="library-spacer"></div>
       
-      <details id="detOst">
+      <details id="detOst" class="library-details">
         <summary class="radio-header">
-          <div class="header-title">
-            <img src="../../assets/piano.png" class="icon-small">
+          <div class="header-title header-title-library">
+            <img src="../../assets/piano.png" class="icon-library">
             <span>Soundtrack (<span id="cntOst">0</span>)</span>
           </div>
           <span class="arrow">▼</span>

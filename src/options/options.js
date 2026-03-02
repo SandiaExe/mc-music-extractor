@@ -8,8 +8,20 @@ const els = {
     themeSelect: document.getElementById('selectTheme')
 };
 
+function applyOptionsTheme(themeKey) {
+    const theme = THEMES[themeKey] || THEMES['sage'];
+    const root = document.documentElement;
+    for (const [key, value] of Object.entries(theme.colors)) {
+        root.style.setProperty(key, value);
+    }
+    root.style.setProperty('--text-primary', '#E0E0E0');
+    root.style.setProperty('--text-secondary', '#A0A0A0');
+}
+
 // Cargar configuración guardada
 chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme'], (data) => {
+    const themeKey = data.theme || 'sage';
+    applyOptionsTheme(themeKey);
     if (els.check) {
         els.check.checked = data.autoplayEnabled || false;
         updateOpacity();
@@ -26,7 +38,7 @@ chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme'], (data) =
             option.textContent = val.name;
             els.themeSelect.appendChild(option);
         }
-        els.themeSelect.value = data.theme || 'sage';
+        els.themeSelect.value = themeKey;
     }
 });
 
@@ -47,9 +59,7 @@ if (els.themeSelect) {
     els.themeSelect.addEventListener('change', () => {
         const selected = els.themeSelect.value;
         chrome.storage.local.set({ theme: selected });
-        
-        // (Opcional) Preview inmediato en la página de opciones si quisieras
-        // pero principalmente guarda para el popup.
+        applyOptionsTheme(selected);
     });
 }
 

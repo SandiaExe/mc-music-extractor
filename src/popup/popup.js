@@ -31,7 +31,9 @@ const ui = {
     importNotice: document.getElementById('importNotice'),
     btnNoticeConfig: document.getElementById('btnNoticeConfig'),
     btnDismissNotice: document.getElementById('btnDismissNotice'),
-    volIcon: document.getElementById('volumeIcon')
+    volIcon: document.getElementById('volumeIcon'),
+    skyContainer: document.getElementById('skyContainer'),
+    skyNoteLayer: document.getElementById('skyNoteLayer')
 };
 
 // I don't how works this code, but i'm sure it's a magic.
@@ -41,7 +43,8 @@ ui.visualizer = document.getElementById('audioVisualizer');
 const MODES = [
     { txt: "🎹 Random: OST", id: 0 },
     { txt: "📀 Random: Discs", id: 1 },
-    { txt: "🔀 Random: All", id: 2 }
+    { txt: "🔀 Random: All", id: 2 },
+    { txt: "🚫 Random: No", id: 3 }
 ];
 
 let currMode = 0;
@@ -111,6 +114,25 @@ async function init() {
         showOrHideImportNotice(0);
     }
     initVisualizer();
+    initSkyClickNote();
+}
+
+function initSkyClickNote() {
+    if (!ui.skyContainer || !ui.skyNoteLayer) return;
+    ui.skyContainer.addEventListener('click', (e) => {
+        if (e.target.closest('.jukebox-wrapper')) return;
+        const rect = ui.skyContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const note = document.createElement('div');
+        note.className = 'note-particle sky-note';
+        note.style.left = x + 'px';
+        note.style.top = y + 'px';
+        note.style.setProperty('--rnd-x', (Math.random() * 40 - 20) + 'px');
+        note.style.setProperty('--rnd-rot', (Math.random() * 40 - 20) + 'deg');
+        ui.skyNoteLayer.appendChild(note);
+        setTimeout(() => note.remove(), 2500);
+    });
 }
 
 // 2. FUNCIÓN PARA APLICAR TEMA
