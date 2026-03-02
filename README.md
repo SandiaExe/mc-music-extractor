@@ -17,6 +17,10 @@ A minimalist music player for your browser that uses the original audio files fr
 * **Visual Themes:** Switch between different color palettes.
 * **Total Privacy:** The extension does not include any music files. It reads them directly from your local `assets` folder (so legal).
 
+<div align="center">
+  <img src="gif3.gif" />
+</div>
+
 ---
 
 ## ⚙️ How to Setup
@@ -27,6 +31,10 @@ To make the player work, you must point it to your game's sound files:
 3. Click on **"Select Assets Folder"**.
 4. Locate your Minecraft assets folder (usually found at `.minecraft/assets`).
 5. Done! The player will automatically organize the discs and the soundtrack for you.
+
+<div align="center">
+  <img src="gif2.gif" />
+</div>
 
 ---
 
