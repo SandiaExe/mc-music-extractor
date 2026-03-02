@@ -1,4 +1,4 @@
-# 🎶 Minecraft Music Extractor (Chrome Extension)
+# Minecraft Music Extractor (Chrome Extension)
 
 ![Minecraft Style](https://img.shields.io/badge/Style-Minecraft-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
