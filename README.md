@@ -11,7 +11,7 @@ A minimalist music player for your browser that uses the original audio files fr
 
 ---
 
-## ✨ Features
+## Features
 * **Themed UI:** Pixel-art interface inspired by Minecraft's original GUI.
 * **Cohesive Design:** A clean and smooth interface built for **fast navigation**.
 * **Visual Themes:** Switch between different color palettes.
@@ -23,7 +23,7 @@ A minimalist music player for your browser that uses the original audio files fr
 
 ---
 
-## ⚙️ How to Setup
+## How to Setup
 To make the player work, you must point it to your game's sound files:
 
 1. Install the extension in your browser.
@@ -38,14 +38,14 @@ To make the player work, you must point it to your game's sound files:
 
 ---
 
-## ⚖️ Legal Disclaimer
+## Legal Disclaimer
 This project **does not distribute, include, or download** any copyrighted audio files. It is a software tool that allows users to play files they already legally own on their local machine.
 
 *Minecraft is a registered trademark of Mojang Synergies AB. This project is not affiliated with or endorsed by Mojang or Microsoft.*
 
 ---
 
-## 🛠️ Developer Installation
+## Developer Installation
 ```bash
 git clone [https://github.com/SandiaExe/mc-music-extractor.git](https://github.com/SandiaExe/mc-music-extractor.git)
 cd mc-music-extractor
