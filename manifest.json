@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Jukebox Lite",
+  "name": "Jukebox Lite for Minecraft",
   "version": "1.0",
-  "description": "Jukebox music player but simpler and smoother.",
+  "description": "A music player extractor but simpler and smoother.",
   "permissions": ["storage", "unlimitedStorage", "offscreen"],
  "action": {
     "default_popup": "src/popup/popup.html", 
