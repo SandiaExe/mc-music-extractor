@@ -10,6 +10,8 @@ let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
 let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random: No (sin auto/aleatorio)
 let currentTrackName = null;
+let currentBlobUrl = null;
+const MAX_HISTORY = 5;
 const HISTORY_SIZE = 4;
 const PLAY_ORDER_MAX = 100;
 
@@ -104,31 +106,73 @@ async function processMessage(msg) {
 // --- REPRODUCCIÓN ---
 async function playTrack(trackName, options = {}) {
     const fromHistory = options.fromHistory === true;
+
+    // --- FIX DE UI: Actualizar el nombre inmediatamente ---
+    // Esto garantiza que GET_STATUS devuelva el nombre correcto aunque el audio tarde en cargar
+    currentTrackName = trackName;
+
     try {
-        if (audio.src) URL.revokeObjectURL(audio.src);
+        // --- FIX DE MEMORIA: Revocar URL anterior ---
+        if (currentBlobUrl) {
+            URL.revokeObjectURL(currentBlobUrl);
+            currentBlobUrl = null;
+        }
+
         const fileBlob = await getFileFromDB(trackName);
         if (!fileBlob) {
+            console.error("No se encontró el archivo:", trackName);
             setTimeout(playNext, 1000);
             return;
         }
-        audio.src = URL.createObjectURL(fileBlob);
-        await audio.play();
-        currentTrackName = trackName;
+
+        // Crear nueva URL
+        currentBlobUrl = URL.createObjectURL(fileBlob);
+        audio.src = currentBlobUrl;
+
+        // --- FIX DE HISTORIAL: Límite de 5 ---
         if (!fromHistory) {
-            playOrderHistory.push(trackName);
-            if (playOrderHistory.length > PLAY_ORDER_MAX) playOrderHistory.shift();
+            // Si la canción es nueva (no es "atrás"), la añadimos
+            if (playOrderHistory[playOrderHistory.length - 1] !== trackName) {
+                playOrderHistory.push(trackName);
+            }
+            
+            // Mantener solo las últimas 5
+            if (playOrderHistory.length > MAX_HISTORY) {
+                playOrderHistory.shift();
+            }
             currentHistoryIndex = playOrderHistory.length - 1;
         }
-        addToHistory(trackName);
-        chrome.runtime.sendMessage({ type: 'PLAYING_NEW', track: trackName }).catch(()=>{});
-    } catch (err) { setTimeout(playNext, 1000); }
+
+        addToHistory(trackName); 
+
+        await audio.play();
+
+        // Notificar al Popup que hay una nueva canción (si está abierto)
+        chrome.runtime.sendMessage({ 
+            type: 'PLAYING_NEW', 
+            track: trackName 
+        }).catch(() => {});
+
+    } catch (err) {
+        console.error("Error en reproducción:", err);
+        // Si hay error, saltar a la siguiente para no bloquear el motor
+        setTimeout(playNext, 2000);
+    }
 }
 
 function playPrev() {
-    if (currentHistoryIndex <= 0) return;
+    if (currentHistoryIndex <= 0) {
+        console.log("Inicio del historial alcanzado");
+        return;
+    }
+    
     currentHistoryIndex--;
     const prevTrack = playOrderHistory[currentHistoryIndex];
-    if (prevTrack) playTrack(prevTrack, { fromHistory: true });
+    
+    if (prevTrack) {
+        // Usamos options.fromHistory para no duplicar en el array
+        playTrack(prevTrack, { fromHistory: true });
+    }
 }
 
 function playNext() {
