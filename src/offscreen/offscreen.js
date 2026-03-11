@@ -101,22 +101,17 @@ async function processMessage(msg) {
     }
 }
 
-// En offscreen.js, actualiza la función playTrack:
-let currentBlobUrl = null;
 // --- REPRODUCCIÓN ---
 async function playTrack(trackName, options = {}) {
+    const fromHistory = options.fromHistory === true;
     try {
-        // 1. Limpiar la URL anterior para liberar memoria
-        if (currentBlobUrl) {
-            URL.revokeObjectURL(currentBlobUrl);
-        }
-
+        if (audio.src) URL.revokeObjectURL(audio.src);
         const fileBlob = await getFileFromDB(trackName);
-        if (!fileBlob) return;
-
-        // 2. Crear nueva URL y guardarla
-        currentBlobUrl = URL.createObjectURL(fileBlob);
-        audio.src = currentBlobUrl;
+        if (!fileBlob) {
+            setTimeout(playNext, 1000);
+            return;
+        }
+        audio.src = URL.createObjectURL(fileBlob);
         await audio.play();
         currentTrackName = trackName;
         if (!fromHistory) {
@@ -126,10 +121,9 @@ async function playTrack(trackName, options = {}) {
         }
         addToHistory(trackName);
         chrome.runtime.sendMessage({ type: 'PLAYING_NEW', track: trackName }).catch(()=>{});
-    } catch (err) {
-        console.error("Error of memory:", err);
-    }
+    } catch (err) { setTimeout(playNext, 1000); }
 }
+
 function playPrev() {
     if (currentHistoryIndex <= 0) return;
     currentHistoryIndex--;
