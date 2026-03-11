@@ -4,8 +4,8 @@ not production, so this could be consider a experiment? I never used cursor befo
 
 Is a type of dark magic i guess. 
 
-Sorry if my english is bad, I'm not a native speaker, if you are a native speakear pls play minecraft
-with i would like to improve my english, i would to thank you. */
+Sorry if my english is bad, I'm not a native speaker, if you are a native speakear pls play
+with me, i would like to improve my english, i would to thank you. */
 
 const OFFSCREEN_PATH = 'src/offscreen/offscreen.html';
 let creating; // Variable de bloqueo
@@ -31,7 +31,7 @@ async function ensureOffscreenDocument() {
     creating = chrome.offscreen.createDocument({
         url: OFFSCREEN_PATH,
         reasons: ['AUDIO_PLAYBACK'],
-        justification: 'Minecraft Music Player Engine',
+        justification: 'Music Player Engine',
     });
 
     try {

@@ -1,3 +1,5 @@
+// I know this is a little unnecesary, but yeah, it's unnecesary
+
 export const DISC_MAP = {
     '13.ogg': '13',
     'cat.ogg': 'Cat',

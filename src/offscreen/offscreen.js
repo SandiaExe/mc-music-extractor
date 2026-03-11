@@ -13,10 +13,10 @@ let currentTrackName = null;
 let currentBlobUrl = null;
 const MAX_HISTORY = 5;
 const HISTORY_SIZE = 4;
-const PLAY_ORDER_MAX = 100;
+// const PLAY_ORDER_MAX = 100;
 
 // --- SISTEMA DE INICIALIZACIÓN BLINDADO ---
-let isReady = false;
+// let isReady = false;
 
 // Esta promesa asegura que nada funcione hasta que cargue la config
 const initPromise = (async function startEngine() {

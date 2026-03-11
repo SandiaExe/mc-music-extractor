@@ -1,4 +1,4 @@
-import { DISC_MAP, THEMES, DB_NAME, DB_VERSION } from '../utils/consts.js'; 
+import { THEMES, DB_NAME, DB_VERSION } from '../utils/consts.js'; 
 
 const els = {
     check: document.getElementById('checkAutoplay'),
