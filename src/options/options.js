@@ -18,7 +18,7 @@ function applyOptionsTheme(themeKey) {
     root.style.setProperty('--text-secondary', '#A0A0A0');
 }
 
-// Cargar configuración guardada
+// Load saved configuration
 chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme'], (data) => {
     const themeKey = data.theme || 'sage';
     applyOptionsTheme(themeKey);
@@ -71,7 +71,7 @@ function updateOpacity() {
 }
 
 
-// --- IMPORTADOR DE MÚSICA ---
+// --- MUSIC IMPORTER ---
 
 const ui = {
     input: document.getElementById('folderInput'),
@@ -102,7 +102,7 @@ function openDB() {
     });
 }
 
-// Normalizar ruta para que funcione en Windows (\), Mac y Linux (/)
+// Normalize path to work on Windows (\), Mac, and Linux (/)
 function normPath(path) {
     return (path || '').replace(/\\/g, '/');
 }
@@ -114,9 +114,9 @@ if (ui.input) {
 
         ui.pBox.style.display = 'block';
         if(ui.logs) ui.logs.style.display = 'block';
-        ui.status.textContent = "Analizando estructura...";
+        ui.status.textContent = "Analyzing structure...";
 
-        // 1. Mapeo rápido: por nombre de archivo (hash) y por path relativo normalizado (Windows/Mac/Linux)
+        // 1. Quick mapping: by filename (hash) and normalized relative path (Windows/Mac/Linux)
         const fileMap = new Map();
         files.forEach(f => {
             fileMap.set(f.name, f);
@@ -125,12 +125,12 @@ if (ui.input) {
             if (baseName && baseName !== f.name) fileMap.set(baseName, f);
         });
 
-        // 2. Buscar index (rutas con / o \)
+        // 2. Find index (paths with / or \)
         const indexFile = files.find(f => 
             f.name.endsWith('.json') && normPath(f.webkitRelativePath).includes('indexes')
         );
         if (!indexFile) {
-            ui.status.textContent = "Error: No se encontró ningún .json en la carpeta 'indexes'. Asegúrate de haber seleccionado la carpeta 'assets' del juego.";
+            ui.status.textContent = "Error: No .json file found in the 'indexes' folder. Make sure you have selected the game's 'assets' folder.";
             ui.pFill.style.background = '#ff595e';
             ui.pFill.style.width = '100%';
             return;
@@ -140,34 +140,34 @@ if (ui.input) {
         try {
             json = JSON.parse(await indexFile.text());
         } catch (parseErr) {
-            ui.status.textContent = "Error: El archivo de índice no es un JSON válido.";
+            ui.status.textContent = "Error: The index file is not a valid JSON.";
             ui.pFill.style.background = '#ff595e';
             return;
         }
         const objects = json.objects || json;
         if (!objects || typeof objects !== 'object') {
-            ui.status.textContent = "Error: El índice no tiene el formato esperado (falta 'objects').";
+            ui.status.textContent = "Error: The index does not have the expected format (missing 'objects').";
             ui.pFill.style.background = '#ff595e';
             return;
         }
 
-        // 3. Filtrar canciones (paths con / o \)
+        // 3. Filter songs (paths with / or \)
         const entries = Object.entries(objects).filter(([path]) => {
             const p = normPath(path);
             return (p.includes('music') || p.includes('records')) && p.endsWith('.ogg');
         });
 
-        // 4. Procesar por lotes (Chunks)
+        // 4. Process in batches (Chunks)
         try {
-            const db = await openDB(); // Ahora esto creará la tabla 'music'
+            const db = await openDB(); // This will now create the 'music' store
             let processed = 0;
             const total = entries.length;
             const chunkSize = 50; 
 
-            ui.status.textContent = `Importando ${total} archivos...`;
+            ui.status.textContent = `Importing ${total} files...`;
 
             async function processChunk(start) {
-                // AQUÍ DABA EL ERROR ANTES, AHORA NO DEBERÍA
+                // THE ERROR USED TO HAPPEN HERE, IT SHOULDN'T NOW
                 const tx = db.transaction('music', 'readwrite');
                 const store = tx.objectStore('music');
                 
@@ -199,7 +199,7 @@ if (ui.input) {
                 if (processed < total) {
                     requestAnimationFrame(() => processChunk(processed));
                 } else {
-                    ui.status.textContent = "¡COMPLETADO! Reinicia la extensión.";
+                    ui.status.textContent = "COMPLETED! Restart the extension.";
                     ui.pFill.style.background = "#70e000";
                 }
             }
@@ -207,7 +207,7 @@ if (ui.input) {
             processChunk(0);
         } catch (err) {
             console.error(err);
-            ui.status.textContent = "Error Crítico: " + err.message;
+            ui.status.textContent = "Critical Error: " + err.message;
             ui.pFill.style.background = "red";
         }
     });

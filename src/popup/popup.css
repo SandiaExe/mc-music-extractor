@@ -89,41 +89,98 @@ body {
   text-shadow: 1px 1px 0px rgba(255,255,255,0.2); /* Sombra sutil estilo MC */
 }
 
-#skyTitle {
-  margin: 0;
-  font-size: 18px; /* Aumentado para legibilidad */
-  font-weight: normal; /* La fuente MC no necesita bold */
-  color: var(--text-sky);
-  border-bottom: 3px solid var(--border-sky);
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* LA VENTANA: Se queda fija, tiene el ancho máximo y el borde */
+.sky-title-window {
   max-width: 170px;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 3px solid var(--border-sky);
   padding-bottom: 4px;
-  line-height: 1.2;
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+body.paused #skyTitle {
+  animation-play-state: paused;
+}
+
+/* Opcional: que el texto se oscurezca un poco al pausar */
+body.paused #skyTitle {
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+#skyTitle {
+  display: inline-block;
+  margin: 0;
+  font-size: 18px;
+  font-weight: normal;
+  color: var(--text-sky);
+  white-space: nowrap;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+
+  /* --- LA MAGIA ESTÁ AQUÍ --- */
+  /* 1. skyIntro: dura 7s, se ejecuta 1 vez. */
+  /* 2. skyLoop: dura 7s, tiene un retraso de 7s (espera a la intro) y es infinita. */
+  animation: 
+    skyIntro 7s linear, 
+    skyLoop 8s linear 7s infinite;
+}
+
+/* Primera vez: empieza en 120px */
+@keyframes skyIntro {
+  0% { transform: translateX(120px); }
+  100% { transform: translateX(-95%); }
+}
+
+/* Resto de veces: empieza en 170px (el borde) */
+@keyframes skyLoop {
+  0% { transform: translateX(170px); }
+  100% { transform: translateX(-95%); }
+}
+
+/* Mantener el soporte para pausa */
+body.paused #skyTitle {
+  animation-play-state: paused;
 }
 
 /* JUKEBOX */
 .jukebox-wrapper {
   position: relative;
-  width: 72px; height: 72px;
-  transition: transform 0.2s;
-  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); 
+  width: 72px; 
+  height: 72px;
+  cursor: pointer;
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 2.275);
+  filter: drop-shadow(0 2px 0px rgba(0,0,0,0.4)); /* Sombra sólida tipo Minecraft */
 }
 .jukebox-wrapper:active { transform: scale(0.95); }
 .jukebox-img { width: 100%; height: 100%; image-rendering: pixelated; }
 
 /* Overlay */
 .status-overlay {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.4);
-  border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.2s;
+  position: absolute; 
+  inset: -8px;
+  /* Fondo radial para que no sea un bloque negro aburrido */
+  background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+  border-radius: 10px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  opacity: 0; 
+  transition: all 0.2s ease;
+  pointer-events: none; /* Para que no interfiera con clics */
 }
 .jukebox-wrapper.paused .status-overlay { opacity: 1; }
-.status-overlay img { width: 30px; opacity: 1; }
+.status-overlay img { width: 40px; opacity: 1; }
+
+.status-overlay img { 
+  width: 40px; 
+  image-rendering: pixelated;
+  /* Sombra para que el icono de play resalte sobre la madera */
+  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.8));
+  transform: scale(0.8);
+  transition: transform 0.2s var(--accent-bounce, ease-out);
+}
 
 /* Partículas */
 #particleSystem { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
@@ -131,8 +188,9 @@ body {
   position: absolute; width: 18px; height: 18px; top: 10px; left: 25px;
   background-image: url('../../assets/note.png'); 
   background-size: contain; background-repeat: no-repeat;
-  image-rendering: pixelated; opacity: 0;
+  image-rendering: crisp-edges; opacity: 0;
   animation: floatUp 2.5s ease-out forwards;
+  filter: hue-rotate(calc(var(--random-deg) * 1deg));
 }
 @keyframes floatUp {
   0% { transform: translateY(0) scale(0.5); opacity: 0; }
@@ -466,7 +524,7 @@ li.banned .status-dot { background: #ff595e; }
 .icon-ui {
   width: 20px;
   height: 20px;
-  image-rendering: optimizeQuality;
+  image-rendering: pixelated;
   opacity: 0.9;
   transition: opacity 0.2s;
   display: block; /* Quita espacios extra */
@@ -484,7 +542,7 @@ li.banned .status-dot { background: #ff595e; }
 .icon-small {
   width: 26px;
   height: 26px;
-  image-rendering: optimizeQuality;
+  image-rendering: pixelated;
   margin-right: 6px;
 }
 
@@ -498,7 +556,7 @@ li.banned .status-dot { background: #ff595e; }
 .icon-ban {
   width: 27px;
   height: 27px;
-  image-rendering: optimizeQuality;
+  image-rendering: pixelated;
   opacity: 0.7;
   transition: opacity 0.2s;
 }

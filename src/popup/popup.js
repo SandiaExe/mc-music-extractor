@@ -244,6 +244,7 @@ function updateUI(status) {
     }
 
     isPlaying = !status.paused;
+    toggleGlobalPauseClass();
     updateJukeboxVisuals();
     updateVisualizerState();
 
@@ -316,19 +317,25 @@ function formatTime(c, t) {
 // LISTENERS
 ui.btnReload.onclick = () => { if (confirm("¿Reiniciar extensión?")) chrome.runtime.reload(); };
 
+function toggleGlobalPauseClass() {
+    // Si isPlaying es true, QUITAMOS 'paused'. Si es false, la PONEMOS.
+    document.body.classList.toggle('paused', !isPlaying);
+}
+
 function handlePlayPauseClick() {
     if (!currentTrackId) {
-        // No hay pista seleccionada: arrancar una aleatoria según el modo actual
         sendMsg({ action: 'NEXT' });
         isPlaying = true;
-        updateJukeboxVisuals();
-        updateVisualizerState();
     } else {
         sendMsg({ action: 'PAUSE' });
         isPlaying = !isPlaying;
-        updateJukeboxVisuals();
-        updateVisualizerState();
     }
+    
+    // --- NUEVO: Sincronizar clase de pausa ---
+    toggleGlobalPauseClass();
+    
+    updateJukeboxVisuals();
+    updateVisualizerState();
 }
 
 ui.jukebox.onclick = handlePlayPauseClick;
@@ -374,8 +381,13 @@ ui.search.addEventListener('focus', (e) => {
 });
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'UPDATE_TIME' && !isDragging) {
-        ui.bar.max = msg.duration; ui.bar.value = msg.currentTime; formatTime(msg.currentTime, msg.duration);
+        ui.bar.max = msg.duration; 
+        ui.bar.value = msg.currentTime; 
+        formatTime(msg.currentTime, msg.duration);
     } else if (msg.type === 'PLAYING_NEW') {
+        // Al empezar una nueva, nos aseguramos de que isPlaying sea true
+        isPlaying = true;
+        toggleGlobalPauseClass();
         sendMsg({ action: 'GET_STATUS' }, updateUI);
     }
 });
