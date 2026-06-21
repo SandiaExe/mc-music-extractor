@@ -125,16 +125,27 @@ if (ui.input) {
             if (baseName && baseName !== f.name) fileMap.set(baseName, f);
         });
 
-        // 2. Find index (paths with / or \)
-        const indexFile = files.find(f => 
+        // 2. Find index: Filter all JSON files in 'indexes' and pick the one with the highest number in its name
+        const indexFiles = files.filter(f => 
             f.name.endsWith('.json') && normPath(f.webkitRelativePath).includes('indexes')
         );
-        if (!indexFile) {
+
+        if (!indexFiles.length) {
             ui.status.textContent = "Error: No .json file found in the 'indexes' folder. Make sure you have selected the game's 'assets' folder.";
             ui.pFill.style.background = '#ff595e';
             ui.pFill.style.width = '100%';
             return;
         }
+
+        // Ordenamos de mayor a menor extrayendo el número del nombre (ej: "32.json" -> 32)
+        indexFiles.sort((a, b) => {
+            const numA = parseInt(a.name) || 0;
+            const numB = parseInt(b.name) || 0;
+            return numB - numA; // Descendente: el mayor primero
+        });
+
+        const indexFile = indexFiles[0];
+        log(`Using index: ${indexFile.name}`); 
 
         let json;
         try {

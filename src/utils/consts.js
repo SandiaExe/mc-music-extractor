@@ -1,4 +1,4 @@
-// I know this is a little unnecesary, but yeah, it's unnecesary
+// I'm really lazy, sorry
 
 export const DISC_MAP = {
     '13.ogg': '13',
@@ -21,7 +21,8 @@ export const DISC_MAP = {
     'creator_music_box.ogg': 'Creator (music box)',
     'precipice.ogg': 'Precipice',
     'tears.ogg': 'Tears',
-    'lava_chicken.ogg': 'Lava Chicken'
+    'lava_chicken.ogg': 'Lava Chicken',
+    'bounce.ogg': 'Bounce'
 };
 
 export const DB_NAME = "MCPlayerDB";
