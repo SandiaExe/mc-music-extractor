@@ -5,6 +5,8 @@ const els = {
     range: document.getElementById('rangeDelay'),
     val: document.getElementById('valDelay'),
     delayRow: document.getElementById('delayRow'),
+    startupRandom: document.getElementById('checkStartupRandom'),
+    startupRandomRow: document.getElementById('startupRandomRow'),
     themeSelect: document.getElementById('selectTheme'),
     onlyC418: document.getElementById('checkOnlyC418')
 };
@@ -20,13 +22,14 @@ function applyOptionsTheme(themeKey) {
 }
 
 // Load saved configuration
-chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme', 'onlyC418'], (data) => {
+chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 'theme', 'onlyC418'], (data) => {
     const themeKey = data.theme || 'sage';
     applyOptionsTheme(themeKey);
     if (els.check) {
         els.check.checked = data.autoplayEnabled || false;
         updateOpacity();
     }
+    if (els.startupRandom) els.startupRandom.checked = data.autoplayRandom === true;
     if (els.onlyC418) els.onlyC418.checked = data.onlyC418 === true;
     if (els.range) {
         els.range.value = data.autoplayDelay ?? 5;
@@ -57,6 +60,11 @@ if (els.range) {
         chrome.storage.local.set({ autoplayDelay: parseInt(els.range.value) });
     });
 }
+if (els.startupRandom) {
+    els.startupRandom.addEventListener('change', () => {
+        chrome.storage.local.set({ autoplayRandom: els.startupRandom.checked });
+    });
+}
 if (els.onlyC418) {
     els.onlyC418.addEventListener('change', () => {
         const value = els.onlyC418.checked;
@@ -74,11 +82,13 @@ if (els.themeSelect) {
     });
 }
 
+// Las opciones que dependen de "Play on startup" se atenúan si está desactivado
 function updateOpacity() {
-    if(els.delayRow) {
-        els.delayRow.style.opacity = els.check.checked ? '1' : '0.5';
-        els.delayRow.style.pointerEvents = els.check.checked ? 'auto' : 'none';
-    }
+    [els.delayRow, els.startupRandomRow].forEach(row => {
+        if (!row) return;
+        row.style.opacity = els.check.checked ? '1' : '0.5';
+        row.style.pointerEvents = els.check.checked ? 'auto' : 'none';
+    });
 }
 
 

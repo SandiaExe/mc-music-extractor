@@ -45,7 +45,8 @@ async function processMessage(msg) {
         switch (msg.action) {
             case 'START_AUTOPLAY':
                 // Si se recuperó la canción de la sesión anterior, continuar con ella
-                if (currentTrackName) {
+                // (salvo que el usuario prefiera empezar con una aleatoria)
+                if (currentTrackName && !msg.random) {
                     try { await audio.play(); } catch (e) { playNext(); }
                 } else {
                     playNext();

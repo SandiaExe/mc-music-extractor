@@ -98,12 +98,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 function checkAutoplay() {
-    chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay'], (data) => {
+    chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom'], (data) => {
         if (data.autoplayEnabled) {
             const userDelay = (data.autoplayDelay ?? 5) * 1000;
             const engineDelay = 2500; // Tiempo para que el motor de audio termine de cargar
             setTimeout(() => {
-                chrome.runtime.sendMessage({ action: 'START_AUTOPLAY' }).catch(() => {});
+                chrome.runtime.sendMessage({ action: 'START_AUTOPLAY', random: data.autoplayRandom === true }).catch(() => {});
             }, userDelay + engineDelay);
         }
     });
