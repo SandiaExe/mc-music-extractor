@@ -298,7 +298,9 @@ if (ui.input) {
                 if (processed < total) {
                     requestAnimationFrame(() => processChunk(processed).catch(failImport));
                 } else {
-                    ui.status.textContent = "COMPLETED! Restart the extension.";
+                    ui.status.textContent = "COMPLETED! Your library is ready.";
+                    // Avisar al motor de audio para que relea la biblioteca sin reiniciar
+                    chrome.runtime.sendMessage({ action: 'RELOAD_LIBRARY' }).catch(() => {});
                     ui.pFill.style.background = "#70e000";
                     setLoading();
                 }

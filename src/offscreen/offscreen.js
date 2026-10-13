@@ -108,6 +108,10 @@ async function processMessage(msg) {
                 applyGapSettings(msg.mode, msg.seconds);
                 return { status: 'gap_set' };
 
+            case 'RELOAD_LIBRARY': // Se importaron canciones desde opciones
+                await initPlaylist();
+                return { status: 'library_reloaded' };
+
             case 'SET_ONLY_C418':
                 onlyC418 = msg.value === true;
                 return { status: 'only_c418_set' };
