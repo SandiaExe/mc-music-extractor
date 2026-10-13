@@ -29,7 +29,7 @@ chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme', 'onlyC418
     }
     if (els.onlyC418) els.onlyC418.checked = data.onlyC418 === true;
     if (els.range) {
-        els.range.value = data.autoplayDelay || 5;
+        els.range.value = data.autoplayDelay ?? 5;
         if (els.val) els.val.innerText = els.range.value + 's';
     }
     if (els.themeSelect) {
