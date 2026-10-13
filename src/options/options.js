@@ -1,4 +1,4 @@
-import { THEMES, DB_NAME, DB_VERSION } from '../utils/consts.js'; 
+import { THEMES, COMPOSERS, DB_NAME, DB_VERSION } from '../utils/consts.js'; 
 
 const els = {
     check: document.getElementById('checkAutoplay'),
@@ -11,7 +11,7 @@ const els = {
     gapSeconds: document.getElementById('inputGapSeconds'),
     gapCustomRow: document.getElementById('gapCustomRow'),
     themeSelect: document.getElementById('selectTheme'),
-    onlyC418: document.getElementById('checkOnlyC418')
+    composer: document.getElementById('selectComposer')
 };
 
 function applyOptionsTheme(themeKey) {
@@ -25,7 +25,7 @@ function applyOptionsTheme(themeKey) {
 }
 
 // Load saved configuration
-chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 'gapMode', 'gapSeconds', 'theme', 'onlyC418'], (data) => {
+chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 'gapMode', 'gapSeconds', 'theme', 'onlyC418', 'composerFilter'], (data) => {
     const themeKey = data.theme || 'sage';
     applyOptionsTheme(themeKey);
     if (els.check) {
@@ -33,7 +33,16 @@ chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 
         updateOpacity();
     }
     if (els.startupRandom) els.startupRandom.checked = data.autoplayRandom === true;
-    if (els.onlyC418) els.onlyC418.checked = data.onlyC418 === true;
+    if (els.composer) {
+        els.composer.innerHTML = "";
+        els.composer.appendChild(new Option("All composers", ""));
+        for (const [key, composer] of Object.entries(COMPOSERS)) {
+            els.composer.appendChild(new Option(composer.name, key));
+        }
+        // La antigua casilla "Only C418" equivale a filtrar por C418
+        const saved = data.composerFilter ?? (data.onlyC418 === true ? 'c418' : '');
+        els.composer.value = COMPOSERS[saved] ? saved : '';
+    }
     if (els.gapMode) els.gapMode.value = data.gapMode || 'immediate';
     if (els.gapSeconds) els.gapSeconds.value = data.gapSeconds || 10;
     updateGapRow();
@@ -73,12 +82,12 @@ if (els.startupRandom) {
 }
 if (els.gapMode) els.gapMode.addEventListener('change', saveGapSettings);
 if (els.gapSeconds) els.gapSeconds.addEventListener('change', saveGapSettings);
-if (els.onlyC418) {
-    els.onlyC418.addEventListener('change', () => {
-        const value = els.onlyC418.checked;
+if (els.composer) {
+    els.composer.addEventListener('change', () => {
+        const value = els.composer.value;
         // Guardar y avisar al motor de audio para que aplique el cambio sin reiniciar
-        chrome.storage.local.set({ onlyC418: value }, () => {
-            chrome.runtime.sendMessage({ action: 'SET_ONLY_C418', value }).catch(() => {});
+        chrome.storage.local.set({ composerFilter: value }, () => {
+            chrome.runtime.sendMessage({ action: 'SET_COMPOSER', value }).catch(() => {});
         });
     });
 }

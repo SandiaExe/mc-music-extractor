@@ -1,5 +1,5 @@
 // AÑADIMOS DB_NAME y DB_VERSION A LA IMPORTACIÓN
-import { getNiceName, DISC_MAP, DB_NAME, DB_VERSION, THEMES } from '../utils/consts.js';
+import { getNiceName, getComposer, DISC_MAP, DB_NAME, DB_VERSION, THEMES } from '../utils/consts.js';
 
 
 const ui = {
@@ -192,6 +192,13 @@ function renderLists(files) {
         li.onclick = () => sendMsg({ action: 'PLAY', trackName: f });
 
         li.appendChild(spanName);
+        const composer = getComposer(f);
+        if (composer) {
+            const spanComposer = document.createElement('span');
+            spanComposer.className = 'track-composer';
+            spanComposer.textContent = composer;
+            li.appendChild(spanComposer);
+        }
         li.appendChild(btnBan);
 
         if (DISC_MAP[f]) { ui.lDiscs.appendChild(li); cd++; }

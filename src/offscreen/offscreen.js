@@ -1,4 +1,4 @@
-import { DISC_MAP, C418_TRACKS, DB_NAME, DB_VERSION, getNiceName } from '../utils/consts.js';
+import { DISC_MAP, COMPOSERS, DB_NAME, DB_VERSION, getNiceName, getComposer } from '../utils/consts.js';
 
 const audio = document.getElementById('audio');
 
@@ -9,7 +9,7 @@ let playHistory = []; // Últimas N para smart shuffle
 let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
 let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo
-let onlyC418 = false; // Opción "Only C418": limita los modos aleatorios a pistas de C418
+let composerFilter = ''; // Clave de COMPOSERS: limita los modos aleatorios a ese compositor ('' = todos)
 // Tiempo entre canciones: 'immediate' | 'random' (1-10 min, como el juego) | 'custom' (gapSeconds)
 let gapMode = 'immediate';
 let gapSeconds = 10;
@@ -114,9 +114,9 @@ async function processMessage(msg) {
                 await initPlaylist();
                 return { status: 'library_reloaded' };
 
-            case 'SET_ONLY_C418':
-                onlyC418 = msg.value === true;
-                return { status: 'only_c418_set' };
+            case 'SET_COMPOSER':
+                composerFilter = COMPOSERS[msg.value] ? msg.value : '';
+                return { status: 'composer_set' };
 
             case 'TOGGLE_BAN': 
                 toggleBan(msg.trackName); 
@@ -254,8 +254,8 @@ function playNext() {
     if (validPool.length === 0) return;
 
     // Smart Shuffle
-    if (onlyC418) {
-        validPool = validPool.filter(t => C418_TRACKS.has(t));
+    if (composerFilter) {
+        validPool = validPool.filter(t => COMPOSERS[composerFilter].tracks.has(t));
         if (validPool.length === 0) return;
     }
     let candidates = validPool.filter(t => !playHistory.includes(t));
@@ -270,7 +270,7 @@ function updateMediaSession() {
     if (!('mediaSession' in navigator) || !currentTrackName) return;
     navigator.mediaSession.metadata = new MediaMetadata({
         title: getNiceName(currentTrackName),
-        artist: C418_TRACKS.has(currentTrackName) ? 'C418' : 'Minecraft',
+        artist: getComposer(currentTrackName) || 'Minecraft',
         album: 'Minecraft',
         artwork: [{ src: chrome.runtime.getURL('assets/jukebox_lite.png'), sizes: '128x128', type: 'image/png' }]
     });
@@ -444,7 +444,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending', 'gapEndsAt'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'composerFilter', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending', 'gapEndsAt'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -461,7 +461,9 @@ async function loadSettings() {
     const vol = data.defaultVolume !== undefined ? data.defaultVolume : 100;
     audio.volume = vol / 100;
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
-    onlyC418 = data.onlyC418 === true;
+    // La antigua casilla "Only C418" equivale a filtrar por C418
+    const savedComposer = data.composerFilter ?? (data.onlyC418 === true ? 'c418' : '');
+    composerFilter = COMPOSERS[savedComposer] ? savedComposer : '';
     if (SHUFFLE_MODES.includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
     applyGapSettings(data.gapMode, data.gapSeconds);
     gapPending = data.gapPending === true;

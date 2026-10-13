@@ -49,6 +49,60 @@ export const C418_TRACKS = new Set([
   'mellohi.ogg', 'stal.ogg', 'strad.ogg', 'ward.ogg', '11.ogg', 'wait.ogg'
 ]);
 
+// Compositores por nombre de archivo. La clave es la que guarda la opción "Composer filter".
+export const COMPOSERS = {
+    c418: { name: 'C418', tracks: C418_TRACKS },
+    lena_raine: {
+        name: 'Lena Raine',
+        tracks: new Set([
+            // nether update
+            'rubedo.ogg', 'chrysopoeia.ogg', 'so_below.ogg',
+            // caves & cliffs
+            'stand_tall.ogg', 'left_to_bloom.ogg', 'one_more_day.ogg', 'wending.ogg', 'infinite_amethyst.ogg',
+            // the wild update
+            'ancestry.ogg', 'aerie.ogg', 'firebugs.ogg', 'labyrinthine.ogg',
+            // tricky trials
+            'deeper.ogg', 'eld_unknown.ogg', 'endless.ogg',
+            // music discs
+            'pigstep.ogg', 'otherside.ogg', 'creator.ogg', 'creator_music_box.ogg'
+        ])
+    },
+    kumi_tanioka: {
+        name: 'Kumi Tanioka',
+        tracks: new Set([
+            'comforting_memories.ogg', 'floating_dream.ogg', 'an_ordinary_day.ogg',
+            'komorebi.ogg', 'pokopoko.ogg', 'puzzlebox.ogg', 'watcher.ogg', 'yakusoku.ogg'
+        ])
+    },
+    aaron_cherof: {
+        name: 'Aaron Cherof',
+        tracks: new Set([
+            'a_familiar_room.ogg', 'bromeliad.ogg', 'crescent_dunes.ogg', 'echo_in_the_wind.ogg',
+            'featherfall.ogg',
+            // music discs
+            'relic.ogg', 'precipice.ogg'
+        ])
+    },
+    amos_roddy: {
+        name: 'Amos Roddy',
+        tracks: new Set([
+            'below_and_above.ogg', 'broken_clocks.ogg', 'fireflies.ogg', 'lilypad.ogg', 'os_piano.ogg',
+            // music discs
+            'tears.ogg'
+        ])
+    },
+    samuel_aberg: { name: 'Samuel Åberg', tracks: new Set(['5.ogg']) },
+    hyper_potions: { name: 'Hyper Potions', tracks: new Set(['lava_chicken.ogg']) }
+};
+
+// Nombre del compositor de una pista, o null si no está en ninguna lista
+export function getComposer(filename) {
+    for (const composer of Object.values(COMPOSERS)) {
+        if (composer.tracks.has(filename)) return composer.name;
+    }
+    return null;
+}
+
 export const DB_NAME = "MCPlayerDB";
 export const DB_VERSION = 4;
 

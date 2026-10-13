@@ -512,6 +512,13 @@ li.banned .status-dot { background: #ff595e; }
   flex: 1;
 }
 
+/* Compositor de la pista, discreto junto al nombre */
+.track-composer {
+  font-size: 10px;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
 /* Scrollbars Cuadrados */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #111; }
