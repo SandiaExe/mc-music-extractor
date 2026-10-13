@@ -288,6 +288,69 @@ if ('mediaSession' in navigator) {
     }
 }
 
+// --- VISUALIZADOR ---
+// El popup abre un puerto 'visualizer' y recibe la altura (0-1) de cada barra.
+// El audio se analiza sobre una copia (captureStream), sin tocar la salida real:
+// si algo falla aquí, la música sigue sonando y el popup usa su animación CSS.
+const VIS_BARS = 20;
+const VIS_BINS_PER_BAR = 3;
+const visPorts = new Set();
+let visCtx = null, visAnalyser = null, visSource = null, visStream = null, visData = null, visTimer = null;
+
+function tapAudio() {
+    try {
+        if (!visCtx) {
+            visCtx = new AudioContext();
+            visAnalyser = visCtx.createAnalyser();
+            visAnalyser.fftSize = 256;
+            visAnalyser.smoothingTimeConstant = 0.7;
+            visData = new Uint8Array(visAnalyser.frequencyBinCount);
+        }
+        visCtx.resume().catch(() => {});
+        if (visSource) visSource.disconnect();
+        if (visStream) visStream.getTracks().forEach(t => t.stop());
+        // La captura va ligada a la pista cargada: hay que rehacerla con cada canción
+        visStream = audio.captureStream();
+        visSource = visCtx.createMediaStreamSource(visStream);
+        visSource.connect(visAnalyser);
+    } catch (e) {
+        console.error("Visualizador no disponible:", e);
+        visSource = null;
+    }
+}
+
+function sendVisFrame() {
+    if (!visSource || visCtx.state !== 'running' || audio.paused || audio.ended) return;
+    visAnalyser.getByteFrequencyData(visData);
+    const bars = [];
+    for (let i = 0; i < VIS_BARS; i++) {
+        let sum = 0;
+        for (let j = 0; j < VIS_BINS_PER_BAR; j++) sum += visData[i * VIS_BINS_PER_BAR + j];
+        bars.push(sum / (VIS_BINS_PER_BAR * 255));
+    }
+    visPorts.forEach(port => {
+        try { port.postMessage(bars); } catch (e) { visPorts.delete(port); }
+    });
+}
+
+chrome.runtime.onConnect.addListener((port) => {
+    if (port.name !== 'visualizer') return;
+    visPorts.add(port);
+    port.onDisconnect.addListener(() => {
+        visPorts.delete(port);
+        if (visPorts.size === 0) {
+            clearInterval(visTimer);
+            visTimer = null;
+        }
+    });
+    if (!audio.paused && !audio.ended) tapAudio();
+    if (!visTimer) visTimer = setInterval(sendVisFrame, 60);
+});
+
+audio.addEventListener('playing', () => {
+    if (visPorts.size > 0) tapAudio();
+});
+
 // --- TIEMPO ENTRE CANCIONES ---
 function applyGapSettings(mode, seconds) {
     gapMode = ['immediate', 'random', 'custom'].includes(mode) ? mode : 'immediate';

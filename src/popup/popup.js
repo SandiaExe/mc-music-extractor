@@ -266,6 +266,8 @@ function setNextTrackAt(time) {
 function updateUI(status) {
     if (!status) return;
 
+    connectVisualizer(); // El motor ya responde: pedirle los datos reales del audio
+
     setNextTrackAt(status.nextTrackAt);
 
     if (status.bannedTracks) {
@@ -424,6 +426,33 @@ chrome.runtime.onMessage.addListener((msg) => {
         sendMsg({ action: 'GET_STATUS' }, updateUI);
     }
 });
+
+// Visualizador real: el motor envía la altura de cada barra por un puerto.
+// Mientras no lleguen datos se mantiene la animación CSS de siempre.
+let visPort = null;
+
+function connectVisualizer() {
+    if (visPort || !ui.visualizer) return;
+    try {
+        visPort = chrome.runtime.connect({ name: 'visualizer' });
+        visPort.onMessage.addListener(renderVisFrame);
+        visPort.onDisconnect.addListener(() => {
+            void chrome.runtime.lastError; // El motor no estaba listo: se reintenta en el próximo updateUI
+            visPort = null;
+            ui.visualizer.classList.remove('live');
+        });
+    } catch (e) {
+        visPort = null;
+    }
+}
+
+function renderVisFrame(bars) {
+    if (!Array.isArray(bars)) return;
+    ui.visualizer.classList.add('live');
+    Array.from(ui.visualizer.children).forEach((bar, i) => {
+        bar.style.height = Math.max(4, Math.round((bars[i] || 0) * 100)) + '%';
+    });
+}
 
 function initVisualizer() {
     if (!ui.visualizer) return;
