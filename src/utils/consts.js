@@ -117,8 +117,8 @@ export function getNiceName(filename) {
         name = filename.replace('.ogg', '').replace(/_/g, ' ');
     }
 
-    // Capitalizar la primera letra siempre (ej: "ancestry" -> "Ancestry")
-    return name.charAt(0).toUpperCase() + name.slice(1);
+    // Capitalizar cada palabra (ej: "aria math" -> "Aria Math")
+    return name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 export const THEMES = {
