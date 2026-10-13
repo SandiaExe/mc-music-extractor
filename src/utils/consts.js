@@ -27,24 +27,26 @@ export const DISC_MAP = {
 
 // Pistas compuestas por C418 (OST y discos), por nombre de archivo
 export const C418_TRACKS = new Set([
-    // Overworld
-    'calm1.ogg', 'calm2.ogg', 'calm3.ogg',
-    'hal1.ogg', 'hal2.ogg', 'hal3.ogg', 'hal4.ogg',
-    'nuance1.ogg', 'nuance2.ogg',
-    'piano1.ogg', 'piano2.ogg', 'piano3.ogg',
-    // Creative
-    'creative1.ogg', 'creative2.ogg', 'creative3.ogg', 'creative4.ogg', 'creative5.ogg', 'creative6.ogg',
-    // Menu
-    'menu1.ogg', 'menu2.ogg', 'menu3.ogg', 'menu4.ogg',
-    // Nether
-    'nether1.ogg', 'nether2.ogg', 'nether3.ogg', 'nether4.ogg',
-    // End
-    'boss.ogg', 'end.ogg', 'credits.ogg',
-    // Underwater
-    'axolotl.ogg', 'dragon_fish.ogg', 'shuniji.ogg',
-    // Music discs
-    '13.ogg', 'cat.ogg', 'blocks.ogg', 'chirp.ogg', 'far.ogg', 'mall.ogg',
-    'mellohi.ogg', 'stal.ogg', 'strad.ogg', 'ward.ogg', '11.ogg', 'wait.ogg'
+// volume alpha
+  'key.ogg', 'door.ogg', 'subwoofer_lullaby.ogg', 'death.ogg', 'living_mice.ogg',
+  'moog_city.ogg', 'haggstrom.ogg', 'minecraft.ogg', 'oxygene.ogg', 'equinoxe.ogg',
+  'mice_on_venus.ogg', 'dry_hands.ogg', 'wet_hands.ogg', 'clark.ogg', 'chris.ogg',
+  'excuse.ogg', 'sweden.ogg', 'dog.ogg', 'danny.ogg', 'beginning.ogg',
+  'droopy_likes_ricochet.ogg', 'droopy_likes_your_face.ogg',
+
+  // volume beta
+  'ki.ogg', 'alpha.ogg', 'dead_voxel.ogg', 'blind_spots.ogg', 'flake.ogg',
+  'moog_city_2.ogg', 'concrete_halls.ogg', 'biome_fest.ogg', 'mutation.ogg',
+  'haunt_muskie.ogg', 'warmth.ogg', 'floating_trees.ogg', 'aria_math.ogg',
+  'kyoto.ogg', 'ballad_of_the_cats.ogg', 'taswell.ogg', 'beginning_2.ogg',
+  'dreiton.ogg', 'the_end.ogg', 'intro.ogg',
+
+  // water update
+  'axolotl.ogg', 'dragon_fish.ogg', 'shuniji.ogg',
+
+  // music discs
+  '13.ogg', 'cat.ogg', 'blocks.ogg', 'chirp.ogg', 'far.ogg', 'mall.ogg',
+  'mellohi.ogg', 'stal.ogg', 'strad.ogg', 'ward.ogg', '11.ogg', 'wait.ogg'
 ]);
 
 export const DB_NAME = "MCPlayerDB";
