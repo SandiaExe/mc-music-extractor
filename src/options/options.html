@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MC Player Settings</title>
+  <title data-i18n="optPageTitle">Jukebox Lite Settings</title>
   <style>
     :root {
       --opt-fallback-bg: #1e1e1e;
@@ -308,24 +308,24 @@
 <body>
 
   <div class="card">
-    <h1>Settings</h1>
+    <h1 data-i18n="settings">Settings</h1>
 
     <details class="guide-box">
-      <summary>Where to find game music?</summary>
+      <summary data-i18n="guideSummary">Where to find game music?</summary>
       <div class="guide-content">
-        <p>You need the <code>assets</code> folder from your Minecraft installation.</p>
+        <p data-i18n-html="guideIntro">You need the <code>assets</code> folder from your Minecraft installation.</p>
         <ul style="padding-left: 20px; margin: 10px 0;">
           <li><strong>Windows:</strong> <code>%appdata%\.minecraft\assets</code></li>
           <li><strong>Mac:</strong> <code>~/Library/Application Support/minecraft/assets</code></li>
           <li><strong>Linux:</strong> <code>~/.minecraft/assets</code></li>
         </ul>
-        <p>Select the root <strong>assets</strong> folder (the one containing "indexes" and "objects").</p>
+        <p data-i18n-html="guideSelect">Select the root <strong>assets</strong> folder (the one containing "indexes" and "objects").</p>
       </div>
     </details>
 
     <div class="upload-area">
-      <span class="upload-title">Import music files</span>
-      <label for="folderInput" class="btn-upload">🗂️ Select Assets Folder</label>
+      <span class="upload-title" data-i18n="importTitle">Import music files</span>
+      <label for="folderInput" class="btn-upload" data-i18n="selectFolder">🗂️ Select Assets Folder</label>
       <input type="file" id="folderInput" webkitdirectory directory />
       
       <div id="loadingNotice" class="loading-notice" hidden></div>
@@ -334,26 +334,26 @@
         <div class="progress-bar-container">
             <div id="pFill"></div>
         </div>
-        <div id="statusMsg" style="font-size:12px; margin-top:8px; color:var(--text-muted); text-align: center;">Preparing...</div>
+        <div id="statusMsg" style="font-size:12px; margin-top:8px; color:var(--text-muted); text-align: center;" data-i18n="preparing">Preparing...</div>
       </div>
     </div>
     
     <div class="log-box" id="logWindow"></div>
 
-    <h2>Environment</h2>
+    <h2 data-i18n="environment">Environment</h2>
 
     <div class="setting-row">
       <div class="setting-info">
-        <strong>Play on startup</strong>
-        <p>Play music when the browser opens.</p>
+        <strong data-i18n="optAutoplay">Play on startup</strong>
+        <p data-i18n="optAutoplayDesc">Play music when the browser opens.</p>
       </div>
       <input type="checkbox" id="checkAutoplay" checked>
     </div>
 
     <div class="setting-row" id="delayRow">
       <div class="setting-info">
-        <strong>Startup delay</strong>
-        <p>Time to wait before the music starts when the browser opens.</p>
+        <strong data-i18n="optDelay">Startup delay</strong>
+        <p data-i18n="optDelayDesc">Time to wait before the music starts when the browser opens.</p>
       </div>
       <div style="display: flex; align-items: center;">
         <input type="range" id="rangeDelay" min="0" max="60" value="5">
@@ -363,30 +363,30 @@
 
     <div class="setting-row" id="startupRandomRow">
       <div class="setting-info">
-        <strong>Random track on startup</strong>
-        <p>Start with a random track (following your random mode) instead of resuming the last one.</p>
+        <strong data-i18n="optStartupRandom">Random track on startup</strong>
+        <p data-i18n="optStartupRandomDesc">Start with a random track (following your random mode) instead of resuming the last one.</p>
       </div>
       <input type="checkbox" id="checkStartupRandom">
     </div>
 
     <div class="setting-row">
       <div class="setting-info">
-        <strong>Time between tracks</strong>
-        <p>How long to wait before the next track starts.</p>
+        <strong data-i18n="optGap">Time between tracks</strong>
+        <p data-i18n="optGapDesc">How long to wait before the next track starts.</p>
       </div>
       <div>
         <select id="selectGapMode">
-          <option value="immediate">Immediate</option>
-          <option value="random">Random (1-10 min)</option>
-          <option value="custom">Custom</option>
+          <option value="immediate" data-i18n="gapImmediate">Immediate</option>
+          <option value="random" data-i18n="gapRandom">Random (1-10 min)</option>
+          <option value="custom" data-i18n="gapCustom">Custom</option>
         </select>
       </div>
     </div>
 
     <div class="setting-row" id="gapCustomRow">
       <div class="setting-info">
-        <strong>Custom wait</strong>
-        <p>Seconds between tracks.</p>
+        <strong data-i18n="optGapCustom">Custom wait</strong>
+        <p data-i18n="optGapCustomDesc">Seconds between tracks.</p>
       </div>
       <div style="display: flex; align-items: center;">
         <input type="number" id="inputGapSeconds" min="1" max="3600" step="1" value="10">
@@ -396,8 +396,8 @@
 
     <div class="setting-row">
       <div class="setting-info">
-        <strong>Composer filter</strong>
-        <p>Random modes only play tracks by this composer.</p>
+        <strong data-i18n="optComposer">Composer filter</strong>
+        <p data-i18n="optComposerDesc">Random modes only play tracks by this composer.</p>
       </div>
       <div>
         <select id="selectComposer"></select>
@@ -406,8 +406,8 @@
 
      <div class="setting-row">
       <div class="setting-info">
-        <strong>Visual Theme</strong>
-        <p>Player color palette.</p>
+        <strong data-i18n="optTheme">Visual Theme</strong>
+        <p data-i18n="optThemeDesc">Player color palette.</p>
       </div>
       <div>
         <select id="selectTheme"></select>

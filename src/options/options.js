@@ -1,4 +1,7 @@
 import { THEMES, COMPOSERS, openMusicDB } from '../utils/consts.js'; 
+import { t, localizePage } from '../utils/i18n.js';
+
+localizePage();
 
 const els = {
     check: document.getElementById('checkAutoplay'),
@@ -35,7 +38,7 @@ chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 
     if (els.startupRandom) els.startupRandom.checked = data.autoplayRandom === true;
     if (els.composer) {
         els.composer.innerHTML = "";
-        els.composer.appendChild(new Option("All composers", ""));
+        els.composer.appendChild(new Option(t('allComposers'), ""));
         for (const [key, composer] of Object.entries(COMPOSERS)) {
             els.composer.appendChild(new Option(composer.name, key));
         }
@@ -160,7 +163,7 @@ if (ui.input) {
     // The browser can take a while to read the folder before 'change' fires
     ui.input.addEventListener('click', () => {
         ui.input.value = ''; // So picking the same folder again fires 'change'
-        setLoading("⏳ Waiting for the folder... reading it can take a moment.");
+        setLoading(t('loadingWaiting'));
     });
     ui.input.addEventListener('cancel', () => setLoading());
 
@@ -168,11 +171,11 @@ if (ui.input) {
         const files = Array.from(e.target.files);
         if (!files.length) { setLoading(); return; }
 
-        setLoading("⏳ Loading files, please wait...");
+        setLoading(t('loadingFiles'));
 
         ui.pBox.style.display = 'block';
         if(ui.logs) ui.logs.style.display = 'block';
-        ui.status.textContent = "Analyzing structure...";
+        ui.status.textContent = t('statusAnalyzing');
 
         // 1. Quick mapping: by filename (hash) and normalized relative path (Windows/Mac/Linux)
         const fileMap = new Map();
@@ -189,7 +192,7 @@ if (ui.input) {
         );
 
         if (!indexFiles.length) {
-            ui.status.textContent = "Error: No .json file found in the 'indexes' folder. Make sure you have selected the game's 'assets' folder.";
+            ui.status.textContent = t('errNoIndex');
             ui.pFill.style.background = '#ff595e';
             ui.pFill.style.width = '100%';
             setLoading();
@@ -210,14 +213,14 @@ if (ui.input) {
         try {
             json = JSON.parse(await indexFile.text());
         } catch (parseErr) {
-            ui.status.textContent = "Error: The index file is not a valid JSON.";
+            ui.status.textContent = t('errBadJson');
             ui.pFill.style.background = '#ff595e';
             setLoading();
             return;
         }
         const objects = json.objects || json;
         if (!objects || typeof objects !== 'object') {
-            ui.status.textContent = "Error: The index does not have the expected format (missing 'objects').";
+            ui.status.textContent = t('errBadFormat');
             ui.pFill.style.background = '#ff595e';
             setLoading();
             return;
@@ -235,7 +238,7 @@ if (ui.input) {
             return hash && fileMap.has(hash);
         });
         if (!hasTracks) {
-            ui.status.textContent = "Error: No music files found. Make sure the folder contains 'objects' with the game sounds.";
+            ui.status.textContent = t('errNoTracks');
             ui.pFill.style.background = '#ff595e';
             ui.pFill.style.width = '100%';
             setLoading();
@@ -244,7 +247,7 @@ if (ui.input) {
 
         const failImport = (err) => {
             console.error(err);
-            ui.status.textContent = "Critical Error: " + (err?.message || "could not save the files");
+            ui.status.textContent = t('errCritical', [err?.message || t('errSave')]);
             ui.pFill.style.background = "red";
             setLoading();
         };
@@ -256,7 +259,7 @@ if (ui.input) {
             const total = entries.length;
             const chunkSize = 50; 
 
-            ui.status.textContent = `Importing ${total} files...`;
+            ui.status.textContent = t('statusImporting', [String(total)]);
 
             async function processChunk(start) {
                 // THE ERROR USED TO HAPPEN HERE, IT SHOULDN'T NOW
@@ -293,7 +296,7 @@ if (ui.input) {
                 if (processed < total) {
                     requestAnimationFrame(() => processChunk(processed).catch(failImport));
                 } else {
-                    ui.status.textContent = "COMPLETED! Your library is ready.";
+                    ui.status.textContent = t('statusDone');
                     // Avisar al motor de audio para que relea la biblioteca sin reiniciar
                     chrome.runtime.sendMessage({ action: 'RELOAD_LIBRARY' }).catch(() => {});
                     ui.pFill.style.background = "#70e000";

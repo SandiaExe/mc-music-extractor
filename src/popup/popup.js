@@ -1,4 +1,7 @@
 import { getNiceName, getComposer, DISC_MAP, openMusicDB, THEMES } from '../utils/consts.js';
+import { t, localizePage } from '../utils/i18n.js';
+
+localizePage();
 
 
 const ui = {
@@ -41,11 +44,15 @@ const ui = {
 ui.visualizer = document.getElementById('audioVisualizer');
 
 const MODES = [
-    { txt: "🎹 Random: OST", id: 0 },
-    { txt: "📀 Random: Discs", id: 1 },
-    { txt: "🔀 Random: All", id: 2 },
-    { txt: "⭐ Random: Favorites", id: 3 }
+    { key: "modeOst", id: 0 },
+    { key: "modeDiscs", id: 1 },
+    { key: "modeAll", id: 2 },
+    { key: "modeFavorites", id: 3 }
 ];
+
+function modeLabel(mode) {
+    return t((MODES[mode] || MODES[0]).key);
+}
 
 let currMode = 0;
 let isDragging = false;
@@ -112,7 +119,7 @@ async function init() {
         };
     } catch (err) {
         console.error("Error iniciando Popup:", err);
-        if (ui.title) ui.title.textContent = "⚠️ Importa canciones en Configuración";
+        if (ui.title) ui.title.textContent = t('importFirst');
         showOrHideImportNotice(0);
     }
     initVisualizer();
@@ -173,7 +180,7 @@ function renderLists(files) {
         const btnBan = document.createElement('button');
         btnBan.className = 'ban-btn';
         btnBan.innerHTML = '<img src="../../assets/barrier.png" class="icon-ban">';
-        btnBan.title = "Ban/Unban";
+        btnBan.title = t('banTitle');
         btnBan.onclick = (e) => {
             e.stopPropagation();
             if (bannedList.includes(f)) bannedList = bannedList.filter(x => x !== f);
@@ -196,7 +203,7 @@ function renderLists(files) {
         const btnFav = document.createElement('button');
         btnFav.className = 'fav-btn';
         btnFav.textContent = '★';
-        btnFav.title = "Favorite";
+        btnFav.title = t('favTitle');
         btnFav.onclick = (e) => {
             e.stopPropagation();
             if (favList.includes(f)) favList = favList.filter(x => x !== f);
@@ -262,12 +269,12 @@ function renderSearchResults(query) {
 function updateCountdown() {
     if (!ui.skyLabel) return;
     if (!nextTrackAt) {
-        ui.skyLabel.textContent = 'Now playing:';
+        ui.skyLabel.textContent = t('nowPlaying');
         return;
     }
     const left = Math.max(0, Math.round((nextTrackAt - Date.now()) / 1000));
     const sec = left % 60;
-    ui.skyLabel.textContent = `Next track in ${Math.floor(left / 60)}:${sec < 10 ? '0' : ''}${sec}`;
+    ui.skyLabel.textContent = t('nextTrackIn', [`${Math.floor(left / 60)}:${sec < 10 ? '0' : ''}${sec}`]);
 }
 
 function setNextTrackAt(time) {
@@ -322,7 +329,7 @@ function updateUI(status) {
     }
 
     currMode = status.shuffleMode ?? 0;
-    ui.shuffleText.textContent = (MODES[currMode]?.txt || MODES[0].txt).replace(/^[^\s]+\s/, '');
+    ui.shuffleText.textContent = modeLabel(currMode);
 }
 
 function updateBannedVisuals() {
@@ -372,7 +379,7 @@ function formatTime(c, t) {
 }
 
 // LISTENERS
-ui.btnReload.onclick = () => { if (confirm("¿Reiniciar extensión?")) chrome.runtime.reload(); };
+ui.btnReload.onclick = () => { if (confirm(t('confirmRestart'))) chrome.runtime.reload(); };
 
 function toggleGlobalPauseClass() {
     // Si isPlaying es true, QUITAMOS 'paused'. Si es false, la PONEMOS.
@@ -422,7 +429,7 @@ if (ui.volIcon) ui.volIcon.addEventListener('click', () => {
         updateVolumeIcon(restore);
     }
 });
-ui.shuffle.onclick = () => { currMode = (currMode + 1) % MODES.length; sendMsg({ action: 'SET_SHUFFLE', mode: currMode }); ui.shuffleText.textContent = MODES[currMode].txt.replace(/^[^\s]+\s/, ''); };
+ui.shuffle.onclick = () => { currMode = (currMode + 1) % MODES.length; sendMsg({ action: 'SET_SHUFFLE', mode: currMode }); ui.shuffleText.textContent = modeLabel(currMode); };
 ui.btnSettings.onclick = () => chrome.runtime.openOptionsPage();
 if (ui.btnNoticeConfig) ui.btnNoticeConfig.onclick = () => chrome.runtime.openOptionsPage();
 if (ui.btnDismissNotice) ui.btnDismissNotice.onclick = () => {

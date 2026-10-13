@@ -1,0 +1,200 @@
+{
+  "extDescription": {
+    "message": "A music player for Minecraft. Simpler and smoother."
+  },
+  "nowPlaying": {
+    "message": "Now playing:"
+  },
+  "nextTrackIn": {
+    "message": "Next track in $1"
+  },
+  "nothingPlaying": {
+    "message": "Nothing playing"
+  },
+  "importNotice": {
+    "message": "To use the player, you must import the game songs in <strong>Settings</strong> first."
+  },
+  "goToSettings": {
+    "message": "Go to Settings"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "searchPlaceholder": {
+    "message": "Search..."
+  },
+  "searchTitle": {
+    "message": "Search songs"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "seek": {
+    "message": "Seek"
+  },
+  "prevTrack": {
+    "message": "Previous track"
+  },
+  "playPause": {
+    "message": "Play / Pause"
+  },
+  "nextTrack": {
+    "message": "Next track"
+  },
+  "changeMode": {
+    "message": "Change random mode"
+  },
+  "mute": {
+    "message": "Mute / Unmute"
+  },
+  "volume": {
+    "message": "Volume"
+  },
+  "selectSong": {
+    "message": "Select a song"
+  },
+  "musicDiscs": {
+    "message": "Music Discs"
+  },
+  "soundtrack": {
+    "message": "Soundtrack"
+  },
+  "modeOst": {
+    "message": "Random: OST"
+  },
+  "modeDiscs": {
+    "message": "Random: Discs"
+  },
+  "modeAll": {
+    "message": "Random: All"
+  },
+  "modeFavorites": {
+    "message": "Random: Favorites"
+  },
+  "importFirst": {
+    "message": "⚠️ Import songs in Settings"
+  },
+  "banTitle": {
+    "message": "Ban / Unban"
+  },
+  "favTitle": {
+    "message": "Favorite"
+  },
+  "confirmRestart": {
+    "message": "Restart the extension?"
+  },
+  "optPageTitle": {
+    "message": "Jukebox Lite Settings"
+  },
+  "guideSummary": {
+    "message": "Where to find game music?"
+  },
+  "guideIntro": {
+    "message": "You need the <code>assets</code> folder from your Minecraft installation."
+  },
+  "guideSelect": {
+    "message": "Select the root <strong>assets</strong> folder (the one containing \"indexes\" and \"objects\")."
+  },
+  "importTitle": {
+    "message": "Import music files"
+  },
+  "selectFolder": {
+    "message": "🗂️ Select Assets Folder"
+  },
+  "preparing": {
+    "message": "Preparing..."
+  },
+  "environment": {
+    "message": "Environment"
+  },
+  "optAutoplay": {
+    "message": "Play on startup"
+  },
+  "optAutoplayDesc": {
+    "message": "Play music when the browser opens."
+  },
+  "optDelay": {
+    "message": "Startup delay"
+  },
+  "optDelayDesc": {
+    "message": "Time to wait before the music starts when the browser opens."
+  },
+  "optStartupRandom": {
+    "message": "Random track on startup"
+  },
+  "optStartupRandomDesc": {
+    "message": "Start with a random track (following your random mode) instead of resuming the last one."
+  },
+  "optGap": {
+    "message": "Time between tracks"
+  },
+  "optGapDesc": {
+    "message": "How long to wait before the next track starts."
+  },
+  "gapImmediate": {
+    "message": "Immediate"
+  },
+  "gapRandom": {
+    "message": "Random (1-10 min)"
+  },
+  "gapCustom": {
+    "message": "Custom"
+  },
+  "optGapCustom": {
+    "message": "Custom wait"
+  },
+  "optGapCustomDesc": {
+    "message": "Seconds between tracks."
+  },
+  "optComposer": {
+    "message": "Composer filter"
+  },
+  "optComposerDesc": {
+    "message": "Random modes only play tracks by this composer."
+  },
+  "allComposers": {
+    "message": "All composers"
+  },
+  "optTheme": {
+    "message": "Visual Theme"
+  },
+  "optThemeDesc": {
+    "message": "Player color palette."
+  },
+  "statusAnalyzing": {
+    "message": "Analyzing structure..."
+  },
+  "errNoIndex": {
+    "message": "Error: No .json file found in the 'indexes' folder. Make sure you have selected the game's 'assets' folder."
+  },
+  "errBadJson": {
+    "message": "Error: The index file is not a valid JSON."
+  },
+  "errBadFormat": {
+    "message": "Error: The index does not have the expected format (missing 'objects')."
+  },
+  "errNoTracks": {
+    "message": "Error: No music files found. Make sure the folder contains 'objects' with the game sounds."
+  },
+  "statusImporting": {
+    "message": "Importing $1 files..."
+  },
+  "statusDone": {
+    "message": "COMPLETED! Your library is ready."
+  },
+  "errCritical": {
+    "message": "Critical Error: $1"
+  },
+  "errSave": {
+    "message": "could not save the files"
+  },
+  "loadingWaiting": {
+    "message": "⏳ Waiting for the folder... reading it can take a moment."
+  },
+  "loadingFiles": {
+    "message": "⏳ Loading files, please wait..."
+  }
+}

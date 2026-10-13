@@ -1,0 +1,200 @@
+{
+  "extDescription": {
+    "message": "Un reproductor de música para Minecraft. Más simple y fluido."
+  },
+  "nowPlaying": {
+    "message": "Sonando:"
+  },
+  "nextTrackIn": {
+    "message": "Siguiente en $1"
+  },
+  "nothingPlaying": {
+    "message": "Nada sonando"
+  },
+  "importNotice": {
+    "message": "Para usar el reproductor, primero importa las canciones del juego en <strong>Ajustes</strong>."
+  },
+  "goToSettings": {
+    "message": "Ir a Ajustes"
+  },
+  "close": {
+    "message": "Cerrar"
+  },
+  "searchPlaceholder": {
+    "message": "Buscar..."
+  },
+  "searchTitle": {
+    "message": "Buscar canciones"
+  },
+  "restart": {
+    "message": "Reiniciar"
+  },
+  "settings": {
+    "message": "Ajustes"
+  },
+  "seek": {
+    "message": "Avanzar o retroceder"
+  },
+  "prevTrack": {
+    "message": "Pista anterior"
+  },
+  "playPause": {
+    "message": "Reproducir / Pausar"
+  },
+  "nextTrack": {
+    "message": "Siguiente pista"
+  },
+  "changeMode": {
+    "message": "Cambiar modo aleatorio"
+  },
+  "mute": {
+    "message": "Silenciar / Activar sonido"
+  },
+  "volume": {
+    "message": "Volumen"
+  },
+  "selectSong": {
+    "message": "Elige una canción"
+  },
+  "musicDiscs": {
+    "message": "Discos de música"
+  },
+  "soundtrack": {
+    "message": "Banda sonora"
+  },
+  "modeOst": {
+    "message": "Aleatorio: OST"
+  },
+  "modeDiscs": {
+    "message": "Aleatorio: Discos"
+  },
+  "modeAll": {
+    "message": "Aleatorio: Todo"
+  },
+  "modeFavorites": {
+    "message": "Aleatorio: Favoritos"
+  },
+  "importFirst": {
+    "message": "⚠️ Importa canciones en Ajustes"
+  },
+  "banTitle": {
+    "message": "Banear / Desbanear"
+  },
+  "favTitle": {
+    "message": "Favorita"
+  },
+  "confirmRestart": {
+    "message": "¿Reiniciar la extensión?"
+  },
+  "optPageTitle": {
+    "message": "Ajustes de Jukebox Lite"
+  },
+  "guideSummary": {
+    "message": "¿Dónde está la música del juego?"
+  },
+  "guideIntro": {
+    "message": "Necesitas la carpeta <code>assets</code> de tu instalación de Minecraft."
+  },
+  "guideSelect": {
+    "message": "Selecciona la carpeta raíz <strong>assets</strong> (la que contiene \"indexes\" y \"objects\")."
+  },
+  "importTitle": {
+    "message": "Importar archivos de música"
+  },
+  "selectFolder": {
+    "message": "🗂️ Seleccionar carpeta assets"
+  },
+  "preparing": {
+    "message": "Preparando..."
+  },
+  "environment": {
+    "message": "Entorno"
+  },
+  "optAutoplay": {
+    "message": "Reproducir al iniciar"
+  },
+  "optAutoplayDesc": {
+    "message": "Reproduce música al abrir el navegador."
+  },
+  "optDelay": {
+    "message": "Retraso de inicio"
+  },
+  "optDelayDesc": {
+    "message": "Tiempo de espera antes de que empiece la música al abrir el navegador."
+  },
+  "optStartupRandom": {
+    "message": "Pista aleatoria al iniciar"
+  },
+  "optStartupRandomDesc": {
+    "message": "Empieza con una pista aleatoria (según tu modo aleatorio) en vez de continuar la última."
+  },
+  "optGap": {
+    "message": "Tiempo entre pistas"
+  },
+  "optGapDesc": {
+    "message": "Cuánto esperar antes de que empiece la siguiente pista."
+  },
+  "gapImmediate": {
+    "message": "Inmediato"
+  },
+  "gapRandom": {
+    "message": "Aleatorio (1-10 min)"
+  },
+  "gapCustom": {
+    "message": "Personalizado"
+  },
+  "optGapCustom": {
+    "message": "Espera personalizada"
+  },
+  "optGapCustomDesc": {
+    "message": "Segundos entre pistas."
+  },
+  "optComposer": {
+    "message": "Filtro por compositor"
+  },
+  "optComposerDesc": {
+    "message": "Los modos aleatorios solo reproducen pistas de este compositor."
+  },
+  "allComposers": {
+    "message": "Todos los compositores"
+  },
+  "optTheme": {
+    "message": "Tema visual"
+  },
+  "optThemeDesc": {
+    "message": "Paleta de colores del reproductor."
+  },
+  "statusAnalyzing": {
+    "message": "Analizando la estructura..."
+  },
+  "errNoIndex": {
+    "message": "Error: no hay ningún .json en la carpeta 'indexes'. Comprueba que has seleccionado la carpeta 'assets' del juego."
+  },
+  "errBadJson": {
+    "message": "Error: el archivo de índice no es un JSON válido."
+  },
+  "errBadFormat": {
+    "message": "Error: el índice no tiene el formato esperado (falta 'objects')."
+  },
+  "errNoTracks": {
+    "message": "Error: no se encontraron archivos de música. Comprueba que la carpeta contiene 'objects' con los sonidos del juego."
+  },
+  "statusImporting": {
+    "message": "Importando $1 archivos..."
+  },
+  "statusDone": {
+    "message": "¡COMPLETADO! Tu biblioteca está lista."
+  },
+  "errCritical": {
+    "message": "Error crítico: $1"
+  },
+  "errSave": {
+    "message": "no se pudieron guardar los archivos"
+  },
+  "loadingWaiting": {
+    "message": "⏳ Esperando la carpeta... leerla puede tardar un momento."
+  },
+  "loadingFiles": {
+    "message": "⏳ Cargando archivos, espera por favor..."
+  }
+}

@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Jukebox Lite for Minecraft",
   "version": "1.3",
-  "description": "A music player for Minecraft. Simpler and smoother.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": ["storage", "unlimitedStorage", "offscreen", "alarms"],
  "action": {
     "default_popup": "src/popup/popup.html", 
@@ -18,15 +19,15 @@
   "commands": {
     "play-pause": {
       "suggested_key": { "default": "Alt+Shift+P" },
-      "description": "Play / Pause"
+      "description": "__MSG_playPause__"
     },
     "next-track": {
       "suggested_key": { "default": "Alt+Shift+N" },
-      "description": "Next track"
+      "description": "__MSG_nextTrack__"
     },
     "prev-track": {
       "suggested_key": { "default": "Alt+Shift+B" },
-      "description": "Previous track"
+      "description": "__MSG_prevTrack__"
     }
   },
   "icons": {
