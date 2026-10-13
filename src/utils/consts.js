@@ -39,7 +39,7 @@ export const C418_TRACKS = new Set([
   'moog_city_2.ogg', 'concrete_halls.ogg', 'biome_fest.ogg', 'mutation.ogg',
   'haunt_muskie.ogg', 'warmth.ogg', 'floating_trees.ogg', 'aria_math.ogg',
   'kyoto.ogg', 'ballad_of_the_cats.ogg', 'taswell.ogg', 'beginning_2.ogg',
-  'dreiton.ogg', 'the_end.ogg', 'intro.ogg',
+  'dreiton.ogg', 'the_end.ogg', 'intro.ogg', 'boss.ogg',
 
   // water update
   'axolotl.ogg', 'dragon_fish.ogg', 'shuniji.ogg',
@@ -91,8 +91,15 @@ export const COMPOSERS = {
             'tears.ogg'
         ])
     },
-    samuel_aberg: { name: 'Samuel Åberg', tracks: new Set(['5.ogg']) },
-    hyper_potions: { name: 'Hyper Potions', tracks: new Set(['lava_chicken.ogg']) }
+    fingerspit: { 
+        name: 'Fingerspit',
+        tracks: new Set([
+            'ebb.ogg','home.ogg','memories.ogg','nightly.ogg','shores.ogg',
+        // music discs
+        'bounce.ogg'
+        ]) 
+    },
+    others: { name: 'Others', tracks: new Set(['5.ogg','lava_chicken.ogg']) }
 };
 
 // Nombre del compositor de una pista, o null si no está en ninguna lista
