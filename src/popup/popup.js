@@ -163,6 +163,54 @@ function getDisplayName(filename) {
     return getNiceName(filename).replace('Music Disc ', '').replace('C418 - ', '');
 }
 
+// Crea el <li> de una pista: nombre, compositor, favorito y baneo
+function createTrackItem(f, onPlay) {
+    const li = document.createElement('li');
+    li.dataset.id = f;
+    li.onclick = onPlay;
+
+    const spanName = document.createElement('span');
+    spanName.className = 'track-name';
+    spanName.textContent = getDisplayName(f);
+    li.appendChild(spanName);
+
+    const composer = getComposer(f);
+    if (composer) {
+        const spanComposer = document.createElement('span');
+        spanComposer.className = 'track-composer';
+        spanComposer.textContent = composer;
+        li.appendChild(spanComposer);
+    }
+
+    const btnFav = document.createElement('button');
+    btnFav.className = 'fav-btn';
+    btnFav.textContent = '★';
+    btnFav.title = t('favTitle');
+    btnFav.onclick = (e) => {
+        e.stopPropagation();
+        if (favList.includes(f)) favList = favList.filter(x => x !== f);
+        else favList.push(f);
+        updateFavVisuals();
+        sendMsg({ action: 'TOGGLE_FAV', trackName: f });
+    };
+    li.appendChild(btnFav);
+
+    const btnBan = document.createElement('button');
+    btnBan.className = 'ban-btn';
+    btnBan.innerHTML = '<img src="../../assets/barrier.png" class="icon-ban">';
+    btnBan.title = t('banTitle');
+    btnBan.onclick = (e) => {
+        e.stopPropagation();
+        if (bannedList.includes(f)) bannedList = bannedList.filter(x => x !== f);
+        else bannedList.push(f);
+        updateBannedVisuals();
+        sendMsg({ action: 'TOGGLE_BAN', trackName: f });
+    };
+    li.appendChild(btnBan);
+
+    return li;
+}
+
 function renderLists(files) {
     ui.lDiscs.innerHTML = "";
     ui.lOst.innerHTML = "";
@@ -170,49 +218,7 @@ function renderLists(files) {
     let cd = 0, co = 0;
 
     files.forEach(f => {
-        const li = document.createElement('li');
-        li.dataset.id = f;
-
-        const spanName = document.createElement('span');
-        spanName.className = 'track-name';
-        spanName.textContent = getDisplayName(f);
-
-        const btnBan = document.createElement('button');
-        btnBan.className = 'ban-btn';
-        btnBan.innerHTML = '<img src="../../assets/barrier.png" class="icon-ban">';
-        btnBan.title = t('banTitle');
-        btnBan.onclick = (e) => {
-            e.stopPropagation();
-            if (bannedList.includes(f)) bannedList = bannedList.filter(x => x !== f);
-            else bannedList.push(f);
-            updateBannedVisuals();
-            sendMsg({ action: 'TOGGLE_BAN', trackName: f });
-        };
-
-        li.onclick = () => sendMsg({ action: 'PLAY', trackName: f });
-
-        li.appendChild(spanName);
-        const composer = getComposer(f);
-        if (composer) {
-            const spanComposer = document.createElement('span');
-            spanComposer.className = 'track-composer';
-            spanComposer.textContent = composer;
-            li.appendChild(spanComposer);
-        }
-
-        const btnFav = document.createElement('button');
-        btnFav.className = 'fav-btn';
-        btnFav.textContent = '★';
-        btnFav.title = t('favTitle');
-        btnFav.onclick = (e) => {
-            e.stopPropagation();
-            if (favList.includes(f)) favList = favList.filter(x => x !== f);
-            else favList.push(f);
-            updateFavVisuals();
-            sendMsg({ action: 'TOGGLE_FAV', trackName: f });
-        };
-        li.appendChild(btnFav);
-        li.appendChild(btnBan);
+        const li = createTrackItem(f, () => sendMsg({ action: 'PLAY', trackName: f }));
 
         if (DISC_MAP[f]) { ui.lDiscs.appendChild(li); cd++; }
         else { ui.lOst.appendChild(li); co++; }
@@ -246,21 +252,17 @@ function renderSearchResults(query) {
     }
     const matches = allTracksForSearch.filter(t => t.displayName.toLowerCase().includes(q));
     ui.searchResultsList.innerHTML = "";
-    matches.forEach(({ id, displayName }) => {
-        const li = document.createElement('li');
-        li.dataset.id = id;
-        if (id === currentTrackId) li.classList.add('playing');
-        const span = document.createElement('span');
-        span.className = 'track-name';
-        span.textContent = displayName;
-        li.onclick = () => {
+    matches.forEach(({ id }) => {
+        const li = createTrackItem(id, () => {
             sendMsg({ action: 'PLAY', trackName: id });
             if (ui.search) ui.search.value = "";
             renderSearchResults("");
-        };
-        li.appendChild(span);
+        });
+        if (id === currentTrackId) li.classList.add('playing');
         ui.searchResultsList.appendChild(li);
     });
+    updateBannedVisuals();
+    updateFavVisuals();
     ui.searchResultsContainer.classList.remove('hidden');
     if (ui.librarySection) ui.librarySection.classList.add('hidden');
 }
