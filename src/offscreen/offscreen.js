@@ -5,10 +5,11 @@ const audio = document.getElementById('audio');
 // Estado
 let playlist = { all: [], ost: [], records: [] };
 let bannedTracks = [];
+let favorites = [];
 let playHistory = []; // Últimas N para smart shuffle
 let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
-let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo
+let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random Favoritos
 let composerFilter = ''; // Clave de COMPOSERS: limita los modos aleatorios a ese compositor ('' = todos)
 // Tiempo entre canciones: 'immediate' | 'random' (1-10 min, como el juego) | 'custom' (gapSeconds)
 let gapMode = 'immediate';
@@ -19,7 +20,7 @@ let gapTimer = null;
 const LOCAL_GAP_MAX = 20000; // Por encima de esto la espera la lleva el service worker
 let currentTrackName = null;
 let currentBlobUrl = null;
-const SHUFFLE_MODES = [0, 1, 2];
+const SHUFFLE_MODES = [0, 1, 2, 3];
 const MAX_HISTORY = 5;
 const HISTORY_SIZE = 4;
 // const PLAY_ORDER_MAX = 100;
@@ -122,6 +123,10 @@ async function processMessage(msg) {
                 toggleBan(msg.trackName); 
                 return { status: 'banned', bannedList: bannedTracks };
 
+            case 'TOGGLE_FAV':
+                toggleFavorite(msg.trackName);
+                return { status: 'fav_toggled', favorites };
+
             case 'GET_STATUS': 
                 // Ahora esto garantiza devolver los datos cargados, no arrays vacíos
                 return { 
@@ -132,7 +137,8 @@ async function processMessage(msg) {
                     currentTrack: currentTrackName, 
                     shuffleMode: shuffleMode, 
                     nextTrackAt: gapPending ? gapEndsAt : null,
-                    bannedTracks: bannedTracks 
+                    bannedTracks: bannedTracks,
+                    favorites: favorites
                 };
                 
             default: 
@@ -248,7 +254,10 @@ function playNext() {
     let pool = [];
     if (shuffleMode === 1) pool = playlist.records;
     else if (shuffleMode === 2) pool = playlist.all;
+    else if (shuffleMode === 3) pool = playlist.all.filter(t => favorites.includes(t));
     else pool = playlist.ost; // 0 = Random OST
+    // Sin favoritos marcados, Random: Favorites se comporta como Random: OST
+    if (shuffleMode === 3 && pool.length === 0) pool = playlist.ost;
 
     let validPool = pool.filter(t => !bannedTracks.includes(t));
     if (validPool.length === 0) return;
@@ -444,7 +453,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'composerFilter', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending', 'gapEndsAt'];
+const STATE_KEYS = ['banned', 'favorites', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'composerFilter', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending', 'gapEndsAt'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -461,6 +470,7 @@ async function loadSettings() {
     const vol = data.defaultVolume !== undefined ? data.defaultVolume : 100;
     audio.volume = vol / 100;
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
+    favorites = Array.isArray(data.favorites) ? data.favorites : [];
     // La antigua casilla "Only C418" equivale a filtrar por C418
     const savedComposer = data.composerFilter ?? (data.onlyC418 === true ? 'c418' : '');
     composerFilter = COMPOSERS[savedComposer] ? savedComposer : '';
@@ -476,6 +486,12 @@ function toggleBan(t) {
     else bannedTracks.push(t);
     // Persistir para siempre (chrome.storage.local no se borra al cerrar el navegador)
     saveState({ banned: bannedTracks });
+}
+
+function toggleFavorite(t) {
+    if (favorites.includes(t)) favorites = favorites.filter(x => x !== t);
+    else favorites.push(t);
+    saveState({ favorites });
 }
 
 // Eventos Audio

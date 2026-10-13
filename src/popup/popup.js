@@ -44,7 +44,8 @@ ui.visualizer = document.getElementById('audioVisualizer');
 const MODES = [
     { txt: "🎹 Random: OST", id: 0 },
     { txt: "📀 Random: Discs", id: 1 },
-    { txt: "🔀 Random: All", id: 2 }
+    { txt: "🔀 Random: All", id: 2 },
+    { txt: "⭐ Random: Favorites", id: 3 }
 ];
 
 let currMode = 0;
@@ -52,6 +53,7 @@ let isDragging = false;
 let isPlaying = false;
 let particleInterval = null;
 let bannedList = [];
+let favList = [];
 let currentTrackId = null; // Para marcar "playing" en resultados de búsqueda
 /** Lista de todas las pistas { id, displayName } para el buscador */
 let allTracksForSearch = [];
@@ -199,6 +201,19 @@ function renderLists(files) {
             spanComposer.textContent = composer;
             li.appendChild(spanComposer);
         }
+
+        const btnFav = document.createElement('button');
+        btnFav.className = 'fav-btn';
+        btnFav.textContent = '★';
+        btnFav.title = "Favorite";
+        btnFav.onclick = (e) => {
+            e.stopPropagation();
+            if (favList.includes(f)) favList = favList.filter(x => x !== f);
+            else favList.push(f);
+            updateFavVisuals();
+            sendMsg({ action: 'TOGGLE_FAV', trackName: f });
+        };
+        li.appendChild(btnFav);
         li.appendChild(btnBan);
 
         if (DISC_MAP[f]) { ui.lDiscs.appendChild(li); cd++; }
@@ -208,6 +223,7 @@ function renderLists(files) {
     ui.cDiscs.textContent = cd;
     ui.cOst.textContent = co;
     updateBannedVisuals();
+    updateFavVisuals();
 }
 
 function showOrHideImportNotice(fileCount) {
@@ -282,6 +298,11 @@ function updateUI(status) {
         updateBannedVisuals();
     }
 
+    if (status.favorites) {
+        favList = status.favorites;
+        updateFavVisuals();
+    }
+
     isPlaying = !status.paused;
     toggleGlobalPauseClass();
     updateJukeboxVisuals();
@@ -317,6 +338,12 @@ function updateBannedVisuals() {
     document.querySelectorAll('li').forEach(li => {
         if (bannedList.includes(li.dataset.id)) li.classList.add('banned');
         else li.classList.remove('banned');
+    });
+}
+
+function updateFavVisuals() {
+    document.querySelectorAll('li').forEach(li => {
+        li.classList.toggle('favorite', favList.includes(li.dataset.id));
     });
 }
 

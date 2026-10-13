@@ -504,6 +504,12 @@ li.playing .status-dot { background: var(--accent); border-color: #fff; }
 li:hover .ban-btn { opacity: 0.6; }
 .ban-btn:hover { opacity: 1; transform: scale(1.1); color: #ff595e; text-shadow: 1px 1px 0 #000; }
 
+/* Favoritos */
+.fav-btn { background: transparent; border: none; color: #bbb; opacity: 0.2; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; }
+li:hover .fav-btn { opacity: 0.6; }
+.fav-btn:hover { opacity: 1; transform: scale(1.1); }
+li.favorite .fav-btn { opacity: 1; color: var(--accent); text-shadow: 1px 1px 0 #000; }
+
 li.banned { background: #261a1a !important; }
 li.banned .track-name { text-decoration: line-through; opacity: 0.5; }
 li.banned .status-dot { background: #ff595e; }
