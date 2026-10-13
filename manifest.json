@@ -15,6 +15,20 @@
     "page": "src/options/options.html", 
     "open_in_tab": true
   },
+  "commands": {
+    "play-pause": {
+      "suggested_key": { "default": "Alt+Shift+P" },
+      "description": "Play / Pause"
+    },
+    "next-track": {
+      "suggested_key": { "default": "Alt+Shift+N" },
+      "description": "Next track"
+    },
+    "prev-track": {
+      "suggested_key": { "default": "Alt+Shift+B" },
+      "description": "Previous track"
+    }
+  },
   "icons": {
     "128": "assets/jukebox_lite.png" 
   }

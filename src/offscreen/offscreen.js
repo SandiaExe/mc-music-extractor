@@ -66,8 +66,9 @@ async function processMessage(msg) {
                 return { status: 'playing' };
                 
             case 'PAUSE': 
-                // Pulsar play durante la espera entre canciones la salta
-                if (gapPending) {
+                // Pulsar play durante la espera entre canciones la salta,
+                // y sin ninguna canción cargada empieza una
+                if (gapPending || !currentTrackName) {
                     playNext();
                     return { status: 'next' };
                 }
@@ -392,11 +393,17 @@ audio.onended = () => {
     saveState({ lastTime: 0 });
     scheduleNext();
     // Si no empieza otra enseguida, avisar al popup de que ya no suena nada
-    if (gapPending) chrome.runtime.sendMessage({ type: 'TRACK_ENDED' }).catch(() => {});
+    if (gapPending) notifyState();
 };
+// El estado puede cambiar sin pasar por el popup (atajos, teclas multimedia)
+function notifyState() {
+    chrome.runtime.sendMessage({ type: 'STATE_CHANGED' }).catch(() => {});
+}
+audio.onplay = notifyState;
 // Guardar la posición al pausar y cada pocos segundos mientras suena
 audio.onpause = () => {
     if (!audio.ended) saveState({ lastTime: audio.currentTime });
+    notifyState();
 };
 const SAVE_POSITION_EVERY = 5000;
 let lastPositionSave = 0;

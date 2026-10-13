@@ -81,6 +81,14 @@ chrome.runtime.onInstalled.addListener(() => {
     clearPendingGap().then(() => ensureOffscreenDocument());
 });
 
+// Atajos de teclado (se pueden cambiar en chrome://extensions/shortcuts)
+const COMMAND_ACTIONS = { 'play-pause': 'PAUSE', 'next-track': 'NEXT', 'prev-track': 'PREV' };
+chrome.commands.onCommand.addListener((command) => {
+    const action = COMMAND_ACTIONS[command];
+    if (!action) return;
+    ensureOffscreenDocument().then(() => forwardToOffscreen({ action }));
+});
+
 // Fin de la espera entre canciones: despertar al motor (Chrome lo cierra
 // tras un rato en silencio) y pedirle la siguiente
 chrome.alarms.onAlarm.addListener((alarm) => {

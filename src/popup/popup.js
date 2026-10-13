@@ -419,8 +419,8 @@ chrome.runtime.onMessage.addListener((msg) => {
         isPlaying = true;
         toggleGlobalPauseClass();
         sendMsg({ action: 'GET_STATUS' }, updateUI);
-    } else if (msg.type === 'TRACK_ENDED') {
-        // Terminó y no empieza otra todavía (espera entre canciones)
+    } else if (msg.type === 'STATE_CHANGED') {
+        // Play/pausa desde fuera del popup, o fin de pista con espera entre canciones
         sendMsg({ action: 'GET_STATUS' }, updateUI);
     }
 });
