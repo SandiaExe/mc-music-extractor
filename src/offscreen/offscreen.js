@@ -302,7 +302,7 @@ function updateMediaSession() {
         title: getNiceName(currentTrackName),
         artist: getComposer(currentTrackName) || 'Minecraft',
         album: 'Minecraft',
-        artwork: [{ src: chrome.runtime.getURL('assets/jukebox_lite.png'), sizes: '128x128', type: 'image/png' }]
+        artwork: [{ src: chrome.runtime.getURL('assets/icon128.png'), sizes: '128x128', type: 'image/png' }]
     });
 }
 
