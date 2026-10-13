@@ -196,5 +196,20 @@
   },
   "loadingFiles": {
     "message": "⏳ Loading files, please wait..."
+  },
+  "poolEmptyComposer": {
+    "message": "No tracks by $1 in \"$2\", so nothing will play. Change the random mode or the composer filter."
+  },
+  "poolEmptyBanned": {
+    "message": "Every track in \"$1\" is banned, so nothing will play."
+  },
+  "poolEmpty": {
+    "message": "There are no tracks in \"$1\"."
+  },
+  "filterActive": {
+    "message": "Composer filter: $1"
+  },
+  "filterTitle": {
+    "message": "Random modes only play this composer. Click to change it."
   }
 }

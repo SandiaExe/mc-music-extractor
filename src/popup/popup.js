@@ -1,4 +1,4 @@
-import { getNiceName, getComposer, DISC_MAP, openMusicDB, THEMES } from '../utils/consts.js';
+import { getNiceName, getComposer, DISC_MAP, COMPOSERS, openMusicDB, THEMES } from '../utils/consts.js';
 import { t, localizePage } from '../utils/i18n.js';
 
 localizePage();
@@ -34,6 +34,10 @@ const ui = {
     importNotice: document.getElementById('importNotice'),
     btnNoticeConfig: document.getElementById('btnNoticeConfig'),
     btnDismissNotice: document.getElementById('btnDismissNotice'),
+    poolNotice: document.getElementById('poolNotice'),
+    poolNoticeText: document.getElementById('poolNoticeText'),
+    btnPoolSettings: document.getElementById('btnPoolSettings'),
+    filterChip: document.getElementById('filterChip'),
     volIcon: document.getElementById('volumeIcon'),
     skyContainer: document.getElementById('skyContainer'),
     skyNoteLayer: document.getElementById('skyNoteLayer')
@@ -286,8 +290,33 @@ function setNextTrackAt(time) {
     updateCountdown();
 }
 
+// Explica por qué no suena nada cuando el modo aleatorio, el filtro por
+// compositor y los baneos no dejan ninguna pista, y recuerda el filtro activo
+function updatePoolNotice(status) {
+    const composer = COMPOSERS[status.composerFilter]?.name;
+    if (ui.filterChip) {
+        ui.filterChip.textContent = composer ? t('filterActive', [composer]) : '';
+        ui.filterChip.classList.toggle('hidden', !composer);
+    }
+    if (!ui.poolNotice) return;
+
+    const mode = modeLabel(status.shuffleMode ?? 0);
+    let text = '';
+    // Con la biblioteca vacía ya se muestra el aviso de importación
+    if (allTracksForSearch.length > 0) {
+        if (status.poolEmpty === 'composer') text = t('poolEmptyComposer', [composer, mode]);
+        else if (status.poolEmpty === 'banned') text = t('poolEmptyBanned', [mode]);
+        else if (status.poolEmpty === 'empty') text = t('poolEmpty', [mode]);
+    }
+    ui.poolNoticeText.textContent = text;
+    ui.poolNotice.classList.toggle('hidden', !text);
+    ui.btnPoolSettings?.classList.toggle('hidden', status.poolEmpty !== 'composer');
+}
+
 function updateUI(status) {
     if (!status) return;
+
+    updatePoolNotice(status);
 
     connectVisualizer(); // El motor ya responde: pedirle los datos reales del audio
 
@@ -434,6 +463,8 @@ if (ui.volIcon) ui.volIcon.addEventListener('click', () => {
 ui.shuffle.onclick = () => { currMode = (currMode + 1) % MODES.length; sendMsg({ action: 'SET_SHUFFLE', mode: currMode }); ui.shuffleText.textContent = modeLabel(currMode); };
 ui.btnSettings.onclick = () => chrome.runtime.openOptionsPage();
 if (ui.btnNoticeConfig) ui.btnNoticeConfig.onclick = () => chrome.runtime.openOptionsPage();
+if (ui.btnPoolSettings) ui.btnPoolSettings.onclick = () => chrome.runtime.openOptionsPage();
+if (ui.filterChip) ui.filterChip.onclick = () => chrome.runtime.openOptionsPage();
 if (ui.btnDismissNotice) ui.btnDismissNotice.onclick = () => {
     chrome.storage.local.set({ hasSeenImportNotice: true });
     ui.importNotice?.classList.add('hidden');

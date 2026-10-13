@@ -196,5 +196,20 @@
   },
   "loadingFiles": {
     "message": "⏳ Cargando archivos, espera por favor..."
+  },
+  "poolEmptyComposer": {
+    "message": "No hay pistas de $1 en «$2», así que no sonará nada. Cambia el modo aleatorio o el filtro por compositor."
+  },
+  "poolEmptyBanned": {
+    "message": "Todas las pistas de «$1» están baneadas, así que no sonará nada."
+  },
+  "poolEmpty": {
+    "message": "No hay pistas en «$1»."
+  },
+  "filterActive": {
+    "message": "Filtro por compositor: $1"
+  },
+  "filterTitle": {
+    "message": "Los modos aleatorios solo reproducen a este compositor. Haz clic para cambiarlo."
   }
 }

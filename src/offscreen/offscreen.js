@@ -100,6 +100,7 @@ async function processMessage(msg) {
                 if (SHUFFLE_MODES.includes(msg.mode)) {
                     shuffleMode = msg.mode; 
                     saveState({ shuffleMode });
+                    notifyState();
                 }
                 return { status: 'mode_set' };
             
@@ -117,14 +118,17 @@ async function processMessage(msg) {
 
             case 'SET_COMPOSER':
                 composerFilter = COMPOSERS[msg.value] ? msg.value : '';
+                notifyState();
                 return { status: 'composer_set' };
 
             case 'TOGGLE_BAN': 
                 toggleBan(msg.trackName); 
+                notifyState();
                 return { status: 'banned', bannedList: bannedTracks };
 
             case 'TOGGLE_FAV':
                 toggleFavorite(msg.trackName);
+                notifyState();
                 return { status: 'fav_toggled', favorites };
 
             case 'GET_STATUS': 
@@ -137,6 +141,8 @@ async function processMessage(msg) {
                     currentTrack: currentTrackName, 
                     shuffleMode: shuffleMode, 
                     nextTrackAt: gapPending ? gapEndsAt : null,
+                    composerFilter: composerFilter,
+                    poolEmpty: getPool().reason,
                     bannedTracks: bannedTracks,
                     favorites: favorites
                 };
@@ -249,24 +255,39 @@ function playPrev() {
     }
 }
 
-function playNext() {
-    cancelGap();
-    let pool = [];
+// Pistas entre las que elige el modo aleatorio actual. Si no queda ninguna,
+// `reason` dice por qué: 'empty' (el modo no tiene pistas), 'composer' (el
+// filtro por compositor las descarta todas) o 'banned' (están todas baneadas).
+function getPool() {
+    let pool;
     if (shuffleMode === 1) pool = playlist.records;
     else if (shuffleMode === 2) pool = playlist.all;
     else if (shuffleMode === 3) pool = playlist.all.filter(t => favorites.includes(t));
     else pool = playlist.ost; // 0 = Random OST
     // Sin favoritos marcados, Random: Favorites se comporta como Random: OST
     if (shuffleMode === 3 && pool.length === 0) pool = playlist.ost;
+    if (pool.length === 0) return { tracks: [], reason: 'empty' };
 
-    let validPool = pool.filter(t => !bannedTracks.includes(t));
-    if (validPool.length === 0) return;
+    if (composerFilter) {
+        pool = pool.filter(t => COMPOSERS[composerFilter].tracks.has(t));
+        if (pool.length === 0) return { tracks: [], reason: 'composer' };
+    }
+
+    pool = pool.filter(t => !bannedTracks.includes(t));
+    if (pool.length === 0) return { tracks: [], reason: 'banned' };
+
+    return { tracks: pool, reason: null };
+}
+
+function playNext() {
+    cancelGap();
+    const validPool = getPool().tracks;
+    if (validPool.length === 0) {
+        notifyState(); // Para que el popup explique por qué no suena nada
+        return;
+    }
 
     // Smart Shuffle
-    if (composerFilter) {
-        validPool = validPool.filter(t => COMPOSERS[composerFilter].tracks.has(t));
-        if (validPool.length === 0) return;
-    }
     let candidates = validPool.filter(t => !playHistory.includes(t));
     if (candidates.length === 0) candidates = validPool.filter(t => t !== currentTrackName);
     if (candidates.length === 0) candidates = validPool;

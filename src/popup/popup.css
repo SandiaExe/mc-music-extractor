@@ -371,6 +371,17 @@ input[type=range]:hover::-webkit-slider-thumb { background: var(--accent-hover);
 .shuffle-btn:hover { background: #333; color: var(--accent); text-shadow: 1px 1px 0 #000; }
 .shuffle-btn:active { background: #111; }
 
+/* Recordatorio de que hay un filtro por compositor activo */
+.filter-chip {
+  margin: 8px 0 0;
+  font-size: 11px;
+  text-align: center;
+  color: var(--accent);
+  opacity: 0.85;
+  cursor: pointer;
+}
+.filter-chip:hover { opacity: 1; text-decoration: underline; }
+
 .library {
   display: flex;
   flex-direction: column;
