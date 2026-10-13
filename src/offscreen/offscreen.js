@@ -1,4 +1,4 @@
-import { DISC_MAP, COMPOSERS, DB_NAME, DB_VERSION, getNiceName, getComposer } from '../utils/consts.js';
+import { DISC_MAP, COMPOSERS, openMusicDB, getNiceName, getComposer } from '../utils/consts.js';
 
 const audio = document.getElementById('audio');
 
@@ -406,20 +406,8 @@ function addToHistory(t) {
 
 // --- BASES DE DATOS Y CONFIGURACIÓN ---
 
-function openDBWithUpgrade() {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('music')) db.createObjectStore('music');
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(new Error("DB Error"));
-    });
-}
-
 function getFileFromDB(trackName) {
-    return openDBWithUpgrade().then(db => {
+    return openMusicDB().then(db => {
         return new Promise((resolve, reject) => {
             const tx = db.transaction('music', 'readonly');
             const getReq = tx.objectStore('music').get(trackName);
@@ -430,7 +418,7 @@ function getFileFromDB(trackName) {
 }
 
 function initPlaylist() {
-    return openDBWithUpgrade().then(db => {
+    return openMusicDB().then(db => {
         return new Promise((resolve, reject) => {
             if (!db.objectStoreNames.contains('music')) return resolve();
             const tx = db.transaction('music', 'readonly');

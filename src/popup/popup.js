@@ -1,5 +1,4 @@
-// AÑADIMOS DB_NAME y DB_VERSION A LA IMPORTACIÓN
-import { getNiceName, getComposer, DISC_MAP, DB_NAME, DB_VERSION, THEMES } from '../utils/consts.js';
+import { getNiceName, getComposer, DISC_MAP, openMusicDB, THEMES } from '../utils/consts.js';
 
 
 const ui = {
@@ -99,15 +98,7 @@ function requestStatus(retries = 3) {
 async function init() {
      try {
         // 1. Abrir Base de Datos para pintar la lista
-        const db = await new Promise((resolve, reject) => {
-            const req = indexedDB.open(DB_NAME, DB_VERSION);
-            req.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains('music')) db.createObjectStore('music');
-            };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject("Error DB en Popup");
-        });
+        const db = await openMusicDB();
         
         const tx = db.transaction('music', 'readonly');
         tx.objectStore('music').getAllKeys().onsuccess = async (e) => {

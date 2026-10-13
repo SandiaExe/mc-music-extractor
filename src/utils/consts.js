@@ -106,6 +106,19 @@ export function getComposer(filename) {
 export const DB_NAME = "MCPlayerDB";
 export const DB_VERSION = 4;
 
+// Abre la base de datos de canciones (crea el almacén 'music' si no existe)
+export function openMusicDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('music')) db.createObjectStore('music');
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(new Error("Could not open the music database"));
+    });
+}
+
 // FUNCIÓN PARA MAYÚSCULAS Y LIMPIEZA
 export function getNiceName(filename) {
     let name = filename;

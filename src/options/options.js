@@ -1,4 +1,4 @@
-import { THEMES, COMPOSERS, DB_NAME, DB_VERSION } from '../utils/consts.js'; 
+import { THEMES, COMPOSERS, openMusicDB } from '../utils/consts.js'; 
 
 const els = {
     check: document.getElementById('checkAutoplay'),
@@ -144,20 +144,6 @@ function log(msg, err = false) {
     if(ui.logs) ui.logs.prepend(d);
 }
 
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const r = indexedDB.open(DB_NAME, DB_VERSION);
-        r.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('music')) {
-                db.createObjectStore('music');
-            }
-        };
-        r.onsuccess = () => resolve(r.result);
-        r.onerror = (e) => reject(e);
-    });
-}
-
 // Shows the loading notice with the given text, or hides it when called without text
 function setLoading(text) {
     if (!ui.loading) return;
@@ -265,7 +251,7 @@ if (ui.input) {
 
         // 4. Process in batches (Chunks)
         try {
-            const db = await openDB(); // This will now create the 'music' store
+            const db = await openMusicDB();
             let processed = 0;
             const total = entries.length;
             const chunkSize = 50; 
