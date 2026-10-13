@@ -15,6 +15,13 @@ A minimalist music player for your browser that uses the original audio files fr
 * **Themed UI:** Pixel-art interface inspired by Minecraft's original GUI.
 * **Cohesive Design:** A clean and smooth interface built for **fast navigation**.
 * **Visual Themes:** Switch between different color palettes.
+* **Random Modes:** Shuffle the OST, the music discs, everything, or only your favorites.
+* **Favorites & Bans:** Star the tracks you love and ban the ones you never want to hear.
+* **Composer Filter:** Limit the random modes to a single composer (C418, Lena Raine, ...).
+* **Time Between Tracks:** Play the next track immediately, after a custom delay, or after a random 1-10 minute wait like the game does.
+* **Remembers Your Session:** The last track, its position, the volume and the random mode survive a browser restart.
+* **Keyboard Shortcuts & Media Keys:** Control playback without opening the popup.
+* **English & Spanish:** The interface follows your browser language.
 * **Total Privacy:** The extension does not include any music files. It reads them directly from your local `assets` folder (so legal).
 
 <div align="center">
@@ -38,6 +45,17 @@ To make the player work, you must point it to your game's sound files:
 
 ---
 
+## Keyboard Shortcuts
+| Shortcut | Action |
+| --- | --- |
+| `Alt+Shift+P` | Play / Pause |
+| `Alt+Shift+N` | Next track |
+| `Alt+Shift+B` | Previous track |
+
+You can change them in `chrome://extensions/shortcuts`.
+
+---
+
 ## Legal Disclaimer
 This project **does not distribute, include, or download** any copyrighted audio files. It is a software tool that allows users to play files they already legally own on their local machine.
 
@@ -47,6 +65,7 @@ This project **does not distribute, include, or download** any copyrighted audio
 
 ## Developer Installation
 ```bash
-git clone [https://github.com/SandiaExe/mc-music-extractor.git](https://github.com/SandiaExe/mc-music-extractor.git)
+git clone https://github.com/SandiaExe/mc-music-extractor.git
 cd mc-music-extractor
-# Load the folder in chrome://extensions by enabling "Developer mode"
+```
+Then open `chrome://extensions`, enable **Developer mode**, click **Load unpacked** and select the folder.
