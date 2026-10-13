@@ -463,7 +463,15 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 // Visualizador real: el motor envía la altura de cada barra por un puerto.
 // Mientras no lleguen datos se mantiene la animación CSS de siempre.
+// Los datos marcan el objetivo; cada fotograma las barras se acercan a él
+// (suben rápido y bajan suave) para que el movimiento sea fluido.
+const VIS_ATTACK = 0.55;
+const VIS_DECAY = 0.2;
+const VIS_MIN = 0.04; // Altura mínima mientras suena
 let visPort = null;
+let visTarget = [];
+let visLevel = [];
+let visFrame = null;
 
 function connectVisualizer() {
     if (visPort || !ui.visualizer) return;
@@ -473,7 +481,11 @@ function connectVisualizer() {
         visPort.onDisconnect.addListener(() => {
             void chrome.runtime.lastError; // El motor no estaba listo: se reintenta en el próximo updateUI
             visPort = null;
+            cancelAnimationFrame(visFrame);
+            visFrame = null;
+            visLevel = [];
             ui.visualizer.classList.remove('live');
+            Array.from(ui.visualizer.children).forEach(bar => { bar.style.transform = ''; });
         });
     } catch (e) {
         visPort = null;
@@ -482,10 +494,25 @@ function connectVisualizer() {
 
 function renderVisFrame(bars) {
     if (!Array.isArray(bars)) return;
-    ui.visualizer.classList.add('live');
+    visTarget = bars;
+    if (!visFrame) {
+        ui.visualizer.classList.add('live');
+        visFrame = requestAnimationFrame(animateVisualizer);
+    }
+}
+
+function animateVisualizer() {
+    let moving = false;
     Array.from(ui.visualizer.children).forEach((bar, i) => {
-        bar.style.height = Math.max(4, Math.round((bars[i] || 0) * 100)) + '%';
+        const target = isPlaying ? Math.max(VIS_MIN, visTarget[i] || 0) : 0;
+        const level = visLevel[i] || 0;
+        const next = level + (target - level) * (target > level ? VIS_ATTACK : VIS_DECAY);
+        visLevel[i] = next;
+        bar.style.transform = `scaleY(${next.toFixed(3)})`;
+        if (Math.abs(target - next) > 0.002) moving = true;
     });
+    // En pausa las barras bajan hasta cero y el bucle se detiene solo
+    visFrame = (isPlaying || moving) ? requestAnimationFrame(animateVisualizer) : null;
 }
 
 function initVisualizer() {

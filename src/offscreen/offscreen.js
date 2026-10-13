@@ -312,7 +312,7 @@ function tapAudio() {
             visCtx = new AudioContext();
             visAnalyser = visCtx.createAnalyser();
             visAnalyser.fftSize = 256;
-            visAnalyser.smoothingTimeConstant = 0.7;
+            visAnalyser.smoothingTimeConstant = 0.45;
             visData = new Uint8Array(visAnalyser.frequencyBinCount);
         }
         visCtx.resume().catch(() => {});
@@ -353,7 +353,7 @@ chrome.runtime.onConnect.addListener((port) => {
         }
     });
     if (!audio.paused && !audio.ended) tapAudio();
-    if (!visTimer) visTimer = setInterval(sendVisFrame, 60);
+    if (!visTimer) visTimer = setInterval(sendVisFrame, 33);
 });
 
 audio.addEventListener('playing', () => {
