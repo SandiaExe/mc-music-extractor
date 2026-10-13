@@ -43,8 +43,7 @@ ui.visualizer = document.getElementById('audioVisualizer');
 const MODES = [
     { txt: "🎹 Random: OST", id: 0 },
     { txt: "📀 Random: Discs", id: 1 },
-    { txt: "🔀 Random: All", id: 2 },
-    { txt: "🚫 Random: No", id: 3 }
+    { txt: "🔀 Random: All", id: 2 }
 ];
 
 let currMode = 0;
@@ -397,7 +396,7 @@ chrome.runtime.onMessage.addListener((msg) => {
         toggleGlobalPauseClass();
         sendMsg({ action: 'GET_STATUS' }, updateUI);
     } else if (msg.type === 'TRACK_ENDED') {
-        // Terminó y no empieza otra todavía (espera entre canciones o Random: No)
+        // Terminó y no empieza otra todavía (espera entre canciones)
         sendMsg({ action: 'GET_STATUS' }, updateUI);
     }
 });

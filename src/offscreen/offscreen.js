@@ -8,7 +8,7 @@ let bannedTracks = [];
 let playHistory = []; // Últimas N para smart shuffle
 let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
-let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random: No (sin auto/aleatorio)
+let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo
 let onlyC418 = false; // Opción "Only C418": limita los modos aleatorios a pistas de C418
 // Tiempo entre canciones: 'immediate' | 'random' (1-10 min, como el juego) | 'custom' (gapSeconds)
 let gapMode = 'immediate';
@@ -18,6 +18,7 @@ let gapTimer = null;
 const LOCAL_GAP_MAX = 20000; // Por encima de esto la espera la lleva el service worker
 let currentTrackName = null;
 let currentBlobUrl = null;
+const SHUFFLE_MODES = [0, 1, 2];
 const MAX_HISTORY = 5;
 const HISTORY_SIZE = 4;
 // const PLAY_ORDER_MAX = 100;
@@ -93,8 +94,10 @@ async function processMessage(msg) {
                 return { status: 'vol_set' };
 
             case 'SET_SHUFFLE': 
-                shuffleMode = msg.mode; 
-                saveState({ shuffleMode });
+                if (SHUFFLE_MODES.includes(msg.mode)) {
+                    shuffleMode = msg.mode; 
+                    saveState({ shuffleMode });
+                }
                 return { status: 'mode_set' };
             
             case 'GAP_NEXT': // Terminó la espera programada en el service worker
@@ -236,20 +239,12 @@ function playNext() {
     let pool = [];
     if (shuffleMode === 1) pool = playlist.records;
     else if (shuffleMode === 2) pool = playlist.all;
-    else pool = playlist.ost; // 0 = Random OST, 3 = secuencial OST
+    else pool = playlist.ost; // 0 = Random OST
 
     let validPool = pool.filter(t => !bannedTracks.includes(t));
     if (validPool.length === 0) return;
 
-    if (shuffleMode === 3) {
-        // Random: No — siguiente en orden secuencial
-        let idx = validPool.indexOf(currentTrackName);
-        idx = (idx + 1) % validPool.length;
-        playTrack(validPool[idx]);
-        return;
-    }
-
-    // Smart Shuffle (modos 0, 1, 2)
+    // Smart Shuffle
     if (onlyC418) {
         validPool = validPool.filter(t => C418_TRACKS.has(t));
         if (validPool.length === 0) return;
@@ -370,7 +365,7 @@ async function loadSettings() {
     audio.volume = vol / 100;
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
     onlyC418 = data.onlyC418 === true;
-    if ([0, 1, 2, 3].includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
+    if (SHUFFLE_MODES.includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
     applyGapSettings(data.gapMode, data.gapSeconds);
     gapPending = data.gapPending === true;
     return data;
@@ -383,12 +378,12 @@ function toggleBan(t) {
     saveState({ banned: bannedTracks });
 }
 
-// Eventos Audio (modo 3 = Random: No → no pasar a la siguiente al terminar)
+// Eventos Audio
 audio.onended = () => {
     saveState({ lastTime: 0 });
-    if (shuffleMode !== 3) scheduleNext();
+    scheduleNext();
     // Si no empieza otra enseguida, avisar al popup de que ya no suena nada
-    if (gapPending || shuffleMode === 3) chrome.runtime.sendMessage({ type: 'TRACK_ENDED' }).catch(() => {});
+    if (gapPending) chrome.runtime.sendMessage({ type: 'TRACK_ENDED' }).catch(() => {});
 };
 // Guardar la posición al pausar y cada pocos segundos mientras suena
 audio.onpause = () => {
