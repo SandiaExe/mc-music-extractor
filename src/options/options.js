@@ -234,6 +234,19 @@ if (ui.input) {
             return (p.includes('music') || p.includes('records')) && p.endsWith('.ogg');
         });
 
+        // No vaciar la biblioteca actual si esta carpeta no trae ninguna canción
+        const hasTracks = entries.some(([, info]) => {
+            const hash = info && (typeof info === 'object' ? info.hash : info);
+            return hash && fileMap.has(hash);
+        });
+        if (!hasTracks) {
+            ui.status.textContent = "Error: No music files found. Make sure the folder contains 'objects' with the game sounds.";
+            ui.pFill.style.background = '#ff595e';
+            ui.pFill.style.width = '100%';
+            setLoading();
+            return;
+        }
+
         const failImport = (err) => {
             console.error(err);
             ui.status.textContent = "Critical Error: " + (err?.message || "could not save the files");
@@ -254,6 +267,8 @@ if (ui.input) {
                 // THE ERROR USED TO HAPPEN HERE, IT SHOULDN'T NOW
                 const tx = db.transaction('music', 'readwrite');
                 const store = tx.objectStore('music');
+                // Reemplazar la biblioteca anterior (evita mezclar pistas de otras versiones)
+                if (start === 0) store.clear();
                 
                 const end = Math.min(start + chunkSize, total);
 
