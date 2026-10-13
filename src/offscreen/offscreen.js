@@ -1,4 +1,4 @@
-import { DISC_MAP, C418_TRACKS, DB_NAME, DB_VERSION } from '../utils/consts.js';
+import { DISC_MAP, C418_TRACKS, DB_NAME, DB_VERSION, getNiceName } from '../utils/consts.js';
 
 const audio = document.getElementById('audio');
 
@@ -170,6 +170,7 @@ async function playTrack(trackName, options = {}) {
         currentBlobUrl = URL.createObjectURL(fileBlob);
         audio.src = currentBlobUrl;
         saveState({ lastTrack: trackName, lastTime: 0 });
+        updateMediaSession();
 
         // --- FIX DE HISTORIAL: Límite de 5 ---
         if (!fromHistory) {
@@ -224,6 +225,7 @@ async function restoreLastTrack(saved) {
         }, { once: true });
     }
     audio.src = url;
+    updateMediaSession();
 }
 
 function playPrev() {
@@ -261,6 +263,29 @@ function playNext() {
     if (candidates.length === 0) candidates = validPool;
     const nextTrack = candidates[Math.floor(Math.random() * candidates.length)];
     playTrack(nextTrack);
+}
+
+// --- MEDIA SESSION (teclas multimedia y controles del sistema) ---
+function updateMediaSession() {
+    if (!('mediaSession' in navigator) || !currentTrackName) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: getNiceName(currentTrackName),
+        artist: C418_TRACKS.has(currentTrackName) ? 'C418' : 'Minecraft',
+        album: 'Minecraft',
+        artwork: [{ src: chrome.runtime.getURL('assets/jukebox_lite.png'), sizes: '128x128', type: 'image/png' }]
+    });
+}
+
+if ('mediaSession' in navigator) {
+    const handlers = {
+        play: () => processMessage({ action: 'PAUSE' }),
+        pause: () => audio.pause(),
+        nexttrack: () => playNext(),
+        previoustrack: () => playPrev()
+    };
+    for (const [action, handler] of Object.entries(handlers)) {
+        try { navigator.mediaSession.setActionHandler(action, handler); } catch (e) { /* Acción no soportada */ }
+    }
 }
 
 // --- TIEMPO ENTRE CANCIONES ---
