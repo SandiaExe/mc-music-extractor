@@ -22,7 +22,8 @@ const initPromise = (async function startEngine() {
     try {
         console.log("Iniciando motor de audio...");
         await initPlaylist(); // 1. Cargar nombres de canciones
-        await loadSettings(); // 2. Cargar baneos y volumen
+        const saved = await loadSettings(); // 2. Cargar baneos y volumen
+        await restoreLastTrack(saved); // 3. Recuperar la última canción (en pausa)
         console.log("Motor listo. Baneados:", bannedTracks.length, "Volumen:", audio.volume);
     } catch (e) {
         console.error("Error crítico iniciando motor:", e);
@@ -43,7 +44,12 @@ async function processMessage(msg) {
         switch (msg.action) {
             case 'START_AUTOPLAY':
                 shuffleMode = 0; // Random OST por defecto
-                playNext();
+                // Si se recuperó la canción de la sesión anterior, continuar con ella
+                if (currentTrackName) {
+                    try { await audio.play(); } catch (e) { playNext(); }
+                } else {
+                    playNext();
+                }
                 return { status: 'ok' };
                 
             case 'PLAY': 
@@ -126,6 +132,7 @@ async function playTrack(trackName, options = {}) {
         // Crear nueva URL
         currentBlobUrl = URL.createObjectURL(fileBlob);
         audio.src = currentBlobUrl;
+        saveState({ lastTrack: trackName, lastTime: 0 });
 
         // --- FIX DE HISTORIAL: Límite de 5 ---
         if (!fromHistory) {
@@ -156,6 +163,30 @@ async function playTrack(trackName, options = {}) {
         // Si hay error, saltar a la siguiente para no bloquear el motor
         setTimeout(playNext, 2000);
     }
+}
+
+// Deja cargada (sin reproducir) la canción que sonaba al cerrar el navegador
+async function restoreLastTrack(saved) {
+    const { lastTrack, lastTime: savedTime } = saved;
+    if (!lastTrack || !playlist.all.includes(lastTrack)) return;
+
+    const fileBlob = await getFileFromDB(lastTrack);
+    if (!fileBlob) return;
+
+    const url = URL.createObjectURL(fileBlob);
+    currentBlobUrl = url;
+    currentTrackName = lastTrack;
+    playOrderHistory = [lastTrack];
+    currentHistoryIndex = 0;
+    addToHistory(lastTrack);
+
+    if (savedTime > 0) {
+        audio.addEventListener('loadedmetadata', () => {
+            // Solo si sigue siendo la canción recuperada y no terminó
+            if (currentBlobUrl === url && savedTime < audio.duration) audio.currentTime = savedTime;
+        }, { once: true });
+    }
+    audio.src = url;
 }
 
 function playPrev() {
@@ -252,7 +283,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -281,13 +312,24 @@ function toggleBan(t) {
 
 // Eventos Audio (modo 3 = Random: No → no pasar a la siguiente al terminar)
 audio.onended = () => {
+    saveState({ lastTime: 0 });
     if (shuffleMode !== 3) playNext();
 };
+// Guardar la posición al pausar y cada pocos segundos mientras suena
+audio.onpause = () => {
+    if (!audio.ended) saveState({ lastTime: audio.currentTime });
+};
+const SAVE_POSITION_EVERY = 5000;
+let lastPositionSave = 0;
 let lastTime = 0;
 audio.ontimeupdate = () => {
     if (Date.now() - lastTime > 500) {
         chrome.runtime.sendMessage({ type: 'UPDATE_TIME', currentTime: audio.currentTime, duration: audio.duration }).catch(()=>{});
         lastTime = Date.now();
+    }
+    if (!audio.paused && Date.now() - lastPositionSave > SAVE_POSITION_EVERY) {
+        saveState({ lastTime: audio.currentTime });
+        lastPositionSave = Date.now();
     }
 };
 setInterval(() => chrome.runtime.sendMessage({ type: 'KEEP_ALIVE' }).catch(()=>{}), 20000);
