@@ -75,6 +75,18 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'KEEP_ALIVE') return;
 
+    // El offscreen no tiene acceso a chrome.storage: lee y guarda a través de nosotros
+    if (msg.type === 'GET_ENGINE_STATE') {
+        chrome.storage.local.get(msg.keys, sendResponse);
+        return true;
+    }
+    if (msg.type === 'SAVE_STATE') {
+        chrome.storage.local.set(msg.data, () => {
+            if (chrome.runtime.lastError) console.error("Error guardando estado:", chrome.runtime.lastError);
+        });
+        return;
+    }
+
     if (!msg.action) return;
 
     ensureOffscreenDocument().then((created) => {

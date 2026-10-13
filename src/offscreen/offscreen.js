@@ -69,7 +69,7 @@ async function processMessage(msg) {
             case 'SET_VOLUME':
                 if (typeof msg.value === 'number' && msg.value >= 0 && msg.value <= 1) {
                     audio.volume = msg.value;
-                    chrome.storage.local.set({ defaultVolume: Math.round(msg.value * 100) });
+                    saveState({ defaultVolume: Math.round(msg.value * 100) });
                 }
                 return { status: 'vol_set' };
 
@@ -250,30 +250,33 @@ function initPlaylist() {
     });
 }
 
-function loadSettings() {
-    return new Promise(resolve => {
-        chrome.storage.local.get(['banned', 'defaultVolume'], (data) => {
-            console.log("Cargando configuración desde disco:", data);
-            const vol = data.defaultVolume !== undefined ? data.defaultVolume : 100;
-            audio.volume = vol / 100;
-            if (Array.isArray(data.banned)) {
-                bannedTracks = data.banned;
-            } else {
-                bannedTracks = [];
-            }
-            resolve();
-        });
-    });
+// Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
+// la lectura y escritura se hacen a través del service worker.
+const STATE_KEYS = ['banned', 'defaultVolume'];
+
+function saveState(data) {
+    chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
+}
+
+async function loadSettings() {
+    let data = {};
+    try {
+        data = (await chrome.runtime.sendMessage({ type: 'GET_ENGINE_STATE', keys: STATE_KEYS })) || {};
+    } catch (e) {
+        console.error("No se pudo leer la configuración guardada:", e);
+    }
+    console.log("Cargando configuración desde disco:", data);
+    const vol = data.defaultVolume !== undefined ? data.defaultVolume : 100;
+    audio.volume = vol / 100;
+    bannedTracks = Array.isArray(data.banned) ? data.banned : [];
+    return data;
 }
 
 function toggleBan(t) {
     if (bannedTracks.includes(t)) bannedTracks = bannedTracks.filter(x => x !== t);
     else bannedTracks.push(t);
     // Persistir para siempre (chrome.storage.local no se borra al cerrar el navegador)
-    chrome.storage.local.set({ banned: bannedTracks }, () => {
-        if (chrome.runtime.lastError) console.error("Error guardando baneos:", chrome.runtime.lastError);
-        else console.log("Baneos guardados de forma permanente.");
-    });
+    saveState({ banned: bannedTracks });
 }
 
 // Eventos Audio (modo 3 = Random: No → no pasar a la siguiente al terminar)
