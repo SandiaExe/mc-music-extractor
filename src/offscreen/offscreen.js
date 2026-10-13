@@ -16,7 +16,6 @@ const HISTORY_SIZE = 4;
 // const PLAY_ORDER_MAX = 100;
 
 // --- SISTEMA DE INICIALIZACIÓN BLINDADO ---
-// let isReady = false;
 
 // Esta promesa asegura que nada funcione hasta que cargue la config
 const initPromise = (async function startEngine() {
@@ -24,7 +23,6 @@ const initPromise = (async function startEngine() {
         console.log("Iniciando motor de audio...");
         await initPlaylist(); // 1. Cargar nombres de canciones
         await loadSettings(); // 2. Cargar baneos y volumen
-        isReady = true;
         console.log("Motor listo. Baneados:", bannedTracks.length, "Volumen:", audio.volume);
     } catch (e) {
         console.error("Error crítico iniciando motor:", e);
