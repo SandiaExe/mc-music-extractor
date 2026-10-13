@@ -10,21 +10,22 @@ with me, i would like to improve my english, i would to thank you. */
 const OFFSCREEN_PATH = 'src/offscreen/offscreen.html';
 let creating; // Variable de bloqueo
 
+// Devuelve true si el offscreen NO existía y hubo que crearlo (o esperar a que se creara)
 async function ensureOffscreenDocument() {
     const offscreenUrl = chrome.runtime.getURL(OFFSCREEN_PATH);
-    
+
     // 1. Verificar si ya existe (Rápido)
     const existingContexts = await chrome.runtime.getContexts({
         contextTypes: ['OFFSCREEN_DOCUMENT'],
         documentUrls: [offscreenUrl]
     });
 
-    if (existingContexts.length > 0) return;
+    if (existingContexts.length > 0) return false;
 
     // 2. Si ya se está creando, esperar a esa promesa (Evita duplicados)
     if (creating) {
-        await creating;
-        return;
+        try { await creating; } catch (err) { return false; }
+        return true;
     }
 
     // 3. Crear nuevo
@@ -37,13 +38,30 @@ async function ensureOffscreenDocument() {
     try {
         await creating;
         console.log("Audio Engine is working! / So you open the console, and see the logs. YES IS VIBECODED!");
+        return true;
     } catch (err) {
         if (!err.message.startsWith('Only a single offscreen')) {
             console.error("Error creando offscreen:", err);
         }
+        return false;
     } finally {
         creating = null; // Liberar bloqueo
     }
+}
+
+// Reenvía al offscreen un mensaje que llegó cuando todavía no existía.
+// Reintenta porque el motor puede tardar un momento en registrar su listener.
+async function forwardToOffscreen(msg, attempts = 5) {
+    for (let i = 0; i < attempts; i++) {
+        try {
+            const response = await chrome.runtime.sendMessage(msg);
+            if (response) return response;
+        } catch (err) {
+            // Aún no hay receptor: reintentar
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    console.error("El motor de audio no respondió a:", msg.action);
 }
 
 chrome.runtime.onStartup.addListener(() => {
@@ -57,9 +75,14 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'KEEP_ALIVE') return;
 
-    if (msg.action) {
-        ensureOffscreenDocument();
-    }
+    if (!msg.action) return;
+
+    ensureOffscreenDocument().then((created) => {
+        // Si ya existía, el offscreen recibió el mensaje y responde él mismo.
+        // Si hubo que crearlo, el mensaje original se perdió: lo reenviamos.
+        if (created) forwardToOffscreen(msg).then(sendResponse);
+    });
+    return true; // Mantiene el canal abierto para la respuesta reenviada
 });
 
 function checkAutoplay() {
