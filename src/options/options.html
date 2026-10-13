@@ -138,6 +138,20 @@
 
     input[type="file"] { display: none; }
 
+    /* --- Loading notice --- */
+    .loading-notice {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent, var(--opt-fallback-accent));
+      animation: loadingPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loadingPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
     /* --- Progress & Logs --- */
     #progressBox {
       margin-top: 20px;
@@ -297,6 +311,8 @@
       <label for="folderInput" class="btn-upload">🗂️ Select Assets Folder</label>
       <input type="file" id="folderInput" webkitdirectory directory />
       
+      <div id="loadingNotice" class="loading-notice" hidden></div>
+
       <div id="progressBox" style="display:none;">
         <div class="progress-bar-container">
             <div id="pFill"></div>

@@ -89,6 +89,7 @@ const ui = {
     pBox: document.getElementById('progressBox'),
     pFill: document.getElementById('pFill'),
     status: document.getElementById('statusMsg'),
+    loading: document.getElementById('loadingNotice'),
     logs: document.getElementById('logWindow')
 };
 
@@ -113,15 +114,31 @@ function openDB() {
     });
 }
 
+// Shows the loading notice with the given text, or hides it when called without text
+function setLoading(text) {
+    if (!ui.loading) return;
+    ui.loading.textContent = text || '';
+    ui.loading.hidden = !text;
+}
+
 // Normalize path to work on Windows (\), Mac, and Linux (/)
 function normPath(path) {
     return (path || '').replace(/\\/g, '/');
 }
 
 if (ui.input) {
+    // The browser can take a while to read the folder before 'change' fires
+    ui.input.addEventListener('click', () => {
+        ui.input.value = ''; // So picking the same folder again fires 'change'
+        setLoading("⏳ Waiting for the folder... reading it can take a moment.");
+    });
+    ui.input.addEventListener('cancel', () => setLoading());
+
     ui.input.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
-        if (!files.length) return;
+        if (!files.length) { setLoading(); return; }
+
+        setLoading("⏳ Loading files, please wait...");
 
         ui.pBox.style.display = 'block';
         if(ui.logs) ui.logs.style.display = 'block';
@@ -145,6 +162,7 @@ if (ui.input) {
             ui.status.textContent = "Error: No .json file found in the 'indexes' folder. Make sure you have selected the game's 'assets' folder.";
             ui.pFill.style.background = '#ff595e';
             ui.pFill.style.width = '100%';
+            setLoading();
             return;
         }
 
@@ -164,12 +182,14 @@ if (ui.input) {
         } catch (parseErr) {
             ui.status.textContent = "Error: The index file is not a valid JSON.";
             ui.pFill.style.background = '#ff595e';
+            setLoading();
             return;
         }
         const objects = json.objects || json;
         if (!objects || typeof objects !== 'object') {
             ui.status.textContent = "Error: The index does not have the expected format (missing 'objects').";
             ui.pFill.style.background = '#ff595e';
+            setLoading();
             return;
         }
 
@@ -178,6 +198,13 @@ if (ui.input) {
             const p = normPath(path);
             return (p.includes('music') || p.includes('records')) && p.endsWith('.ogg');
         });
+
+        const failImport = (err) => {
+            console.error(err);
+            ui.status.textContent = "Critical Error: " + (err?.message || "could not save the files");
+            ui.pFill.style.background = "red";
+            setLoading();
+        };
 
         // 4. Process in batches (Chunks)
         try {
@@ -219,18 +246,17 @@ if (ui.input) {
                 ui.status.textContent = `${processed} / ${total}`;
 
                 if (processed < total) {
-                    requestAnimationFrame(() => processChunk(processed));
+                    requestAnimationFrame(() => processChunk(processed).catch(failImport));
                 } else {
                     ui.status.textContent = "COMPLETED! Restart the extension.";
                     ui.pFill.style.background = "#70e000";
+                    setLoading();
                 }
             }
 
-            processChunk(0);
+            await processChunk(0);
         } catch (err) {
-            console.error(err);
-            ui.status.textContent = "Critical Error: " + err.message;
-            ui.pFill.style.background = "red";
+            failImport(err);
         }
     });
 }
