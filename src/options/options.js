@@ -7,6 +7,9 @@ const els = {
     delayRow: document.getElementById('delayRow'),
     startupRandom: document.getElementById('checkStartupRandom'),
     startupRandomRow: document.getElementById('startupRandomRow'),
+    gapMode: document.getElementById('selectGapMode'),
+    gapSeconds: document.getElementById('inputGapSeconds'),
+    gapCustomRow: document.getElementById('gapCustomRow'),
     themeSelect: document.getElementById('selectTheme'),
     onlyC418: document.getElementById('checkOnlyC418')
 };
@@ -22,7 +25,7 @@ function applyOptionsTheme(themeKey) {
 }
 
 // Load saved configuration
-chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 'theme', 'onlyC418'], (data) => {
+chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 'gapMode', 'gapSeconds', 'theme', 'onlyC418'], (data) => {
     const themeKey = data.theme || 'sage';
     applyOptionsTheme(themeKey);
     if (els.check) {
@@ -31,6 +34,9 @@ chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'autoplayRandom', 
     }
     if (els.startupRandom) els.startupRandom.checked = data.autoplayRandom === true;
     if (els.onlyC418) els.onlyC418.checked = data.onlyC418 === true;
+    if (els.gapMode) els.gapMode.value = data.gapMode || 'immediate';
+    if (els.gapSeconds) els.gapSeconds.value = data.gapSeconds || 10;
+    updateGapRow();
     if (els.range) {
         els.range.value = data.autoplayDelay ?? 5;
         if (els.val) els.val.innerText = els.range.value + 's';
@@ -65,6 +71,8 @@ if (els.startupRandom) {
         chrome.storage.local.set({ autoplayRandom: els.startupRandom.checked });
     });
 }
+if (els.gapMode) els.gapMode.addEventListener('change', saveGapSettings);
+if (els.gapSeconds) els.gapSeconds.addEventListener('change', saveGapSettings);
 if (els.onlyC418) {
     els.onlyC418.addEventListener('change', () => {
         const value = els.onlyC418.checked;
@@ -79,6 +87,23 @@ if (els.themeSelect) {
         const selected = els.themeSelect.value;
         chrome.storage.local.set({ theme: selected });
         applyOptionsTheme(selected);
+    });
+}
+
+// Los segundos personalizados solo se muestran en el modo "Custom"
+function updateGapRow() {
+    if (els.gapCustomRow) els.gapCustomRow.style.display = els.gapMode?.value === 'custom' ? 'flex' : 'none';
+}
+
+function saveGapSettings() {
+    const mode = els.gapMode.value;
+    // Limitar a lo que admite el campo (1 s - 1 h)
+    const seconds = Math.min(3600, Math.max(1, parseInt(els.gapSeconds.value) || 10));
+    els.gapSeconds.value = seconds;
+    updateGapRow();
+    // Guardar y avisar al motor de audio para que aplique el cambio sin reiniciar
+    chrome.storage.local.set({ gapMode: mode, gapSeconds: seconds }, () => {
+        chrome.runtime.sendMessage({ action: 'SET_GAP', mode, seconds }).catch(() => {});
     });
 }
 

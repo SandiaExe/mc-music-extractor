@@ -8,6 +8,7 @@ Sorry if my english is bad, I'm not a native speaker, if you are a native speake
 with me, i would like to improve my english, i would to thank you. */
 
 const OFFSCREEN_PATH = 'src/offscreen/offscreen.html';
+const NEXT_TRACK_ALARM = 'nextTrack'; // Espera larga entre canciones
 let creating; // Variable de bloqueo
 
 // Devuelve true si el offscreen NO existía y hubo que crearlo (o esperar a que se creara)
@@ -64,12 +65,27 @@ async function forwardToOffscreen(msg, attempts = 5) {
     console.error("El motor de audio no respondió a:", msg.action);
 }
 
+// Una espera entre canciones que quedó a medias no debe sobrevivir a un reinicio
+function clearPendingGap() {
+    chrome.alarms.clear(NEXT_TRACK_ALARM);
+    return chrome.storage.local.set({ gapPending: false });
+}
+
 chrome.runtime.onStartup.addListener(() => {
-    ensureOffscreenDocument().then(() => checkAutoplay());
+    clearPendingGap()
+        .then(() => ensureOffscreenDocument())
+        .then(() => checkAutoplay());
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-    ensureOffscreenDocument();
+    clearPendingGap().then(() => ensureOffscreenDocument());
+});
+
+// Fin de la espera entre canciones: despertar al motor (Chrome lo cierra
+// tras un rato en silencio) y pedirle la siguiente
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name !== NEXT_TRACK_ALARM) return;
+    ensureOffscreenDocument().then(() => forwardToOffscreen({ action: 'GAP_NEXT' }));
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -84,6 +100,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         chrome.storage.local.set(msg.data, () => {
             if (chrome.runtime.lastError) console.error("Error guardando estado:", chrome.runtime.lastError);
         });
+        return;
+    }
+
+    // Esperas largas entre canciones: el offscreen no vive lo suficiente para
+    // un setTimeout de minutos, así que se programan con chrome.alarms
+    if (msg.type === 'SCHEDULE_NEXT') {
+        chrome.alarms.create(NEXT_TRACK_ALARM, { when: Date.now() + msg.delayMs });
+        return;
+    }
+    if (msg.type === 'CANCEL_NEXT') {
+        chrome.alarms.clear(NEXT_TRACK_ALARM);
         return;
     }
 

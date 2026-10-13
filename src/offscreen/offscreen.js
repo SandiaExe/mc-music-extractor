@@ -10,6 +10,12 @@ let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
 let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random: No (sin auto/aleatorio)
 let onlyC418 = false; // Opción "Only C418": limita los modos aleatorios a pistas de C418
+// Tiempo entre canciones: 'immediate' | 'random' (1-10 min, como el juego) | 'custom' (gapSeconds)
+let gapMode = 'immediate';
+let gapSeconds = 10;
+let gapPending = false; // true mientras se espera para pasar a la siguiente
+let gapTimer = null;
+const LOCAL_GAP_MAX = 20000; // Por encima de esto la espera la lleva el service worker
 let currentTrackName = null;
 let currentBlobUrl = null;
 const MAX_HISTORY = 5;
@@ -58,7 +64,13 @@ async function processMessage(msg) {
                 return { status: 'playing' };
                 
             case 'PAUSE': 
-                audio.paused ? await audio.play() : audio.pause(); 
+                // Pulsar play durante la espera entre canciones la salta
+                if (gapPending) {
+                    playNext();
+                    return { status: 'next' };
+                }
+                // Una pista terminada no cuenta como "paused" para el navegador
+                (audio.paused || audio.ended) ? await audio.play() : audio.pause(); 
                 return { status: audio.paused ? 'paused' : 'playing' };
                 
             case 'NEXT': 
@@ -85,6 +97,14 @@ async function processMessage(msg) {
                 saveState({ shuffleMode });
                 return { status: 'mode_set' };
             
+            case 'GAP_NEXT': // Terminó la espera programada en el service worker
+                if (gapPending) playNext();
+                return { status: 'next' };
+
+            case 'SET_GAP':
+                applyGapSettings(msg.mode, msg.seconds);
+                return { status: 'gap_set' };
+
             case 'SET_ONLY_C418':
                 onlyC418 = msg.value === true;
                 return { status: 'only_c418_set' };
@@ -96,7 +116,7 @@ async function processMessage(msg) {
             case 'GET_STATUS': 
                 // Ahora esto garantiza devolver los datos cargados, no arrays vacíos
                 return { 
-                    paused: audio.paused, 
+                    paused: audio.paused || audio.ended, 
                     currentTime: audio.currentTime, 
                     duration: audio.duration, 
                     volume: audio.volume, 
@@ -120,6 +140,7 @@ async function playTrack(trackName, options = {}) {
     // --- FIX DE UI: Actualizar el nombre inmediatamente ---
     // Esto garantiza que GET_STATUS devuelva el nombre correcto aunque el audio tarde en cargar
     currentTrackName = trackName;
+    cancelGap();
 
     try {
         // --- FIX DE MEMORIA: Revocar URL anterior ---
@@ -211,6 +232,7 @@ function playPrev() {
 }
 
 function playNext() {
+    cancelGap();
     let pool = [];
     if (shuffleMode === 1) pool = playlist.records;
     else if (shuffleMode === 2) pool = playlist.all;
@@ -237,6 +259,43 @@ function playNext() {
     if (candidates.length === 0) candidates = validPool;
     const nextTrack = candidates[Math.floor(Math.random() * candidates.length)];
     playTrack(nextTrack);
+}
+
+// --- TIEMPO ENTRE CANCIONES ---
+function applyGapSettings(mode, seconds) {
+    gapMode = ['immediate', 'random', 'custom'].includes(mode) ? mode : 'immediate';
+    gapSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 10;
+}
+
+function getGapDelay() {
+    if (gapMode === 'random') return 60000 + Math.random() * 540000; // 1 a 10 minutos
+    if (gapMode === 'custom') return gapSeconds * 1000;
+    return 0;
+}
+
+// Pasa a la siguiente canción respetando la espera configurada
+function scheduleNext() {
+    const delay = getGapDelay();
+    if (delay <= 0) {
+        playNext();
+        return;
+    }
+    gapPending = true;
+    saveState({ gapPending: true });
+    if (delay <= LOCAL_GAP_MAX) {
+        gapTimer = setTimeout(playNext, delay);
+    } else {
+        chrome.runtime.sendMessage({ type: 'SCHEDULE_NEXT', delayMs: delay }).catch(() => {});
+    }
+}
+
+function cancelGap() {
+    if (!gapPending) return;
+    gapPending = false;
+    clearTimeout(gapTimer);
+    gapTimer = null;
+    saveState({ gapPending: false });
+    chrome.runtime.sendMessage({ type: 'CANCEL_NEXT' }).catch(() => {});
 }
 
 function addToHistory(t) {
@@ -293,7 +352,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -312,6 +371,8 @@ async function loadSettings() {
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
     onlyC418 = data.onlyC418 === true;
     if ([0, 1, 2, 3].includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
+    applyGapSettings(data.gapMode, data.gapSeconds);
+    gapPending = data.gapPending === true;
     return data;
 }
 
@@ -325,7 +386,9 @@ function toggleBan(t) {
 // Eventos Audio (modo 3 = Random: No → no pasar a la siguiente al terminar)
 audio.onended = () => {
     saveState({ lastTime: 0 });
-    if (shuffleMode !== 3) playNext();
+    if (shuffleMode !== 3) scheduleNext();
+    // Si no empieza otra enseguida, avisar al popup de que ya no suena nada
+    if (gapPending || shuffleMode === 3) chrome.runtime.sendMessage({ type: 'TRACK_ENDED' }).catch(() => {});
 };
 // Guardar la posición al pausar y cada pocos segundos mientras suena
 audio.onpause = () => {

@@ -396,6 +396,9 @@ chrome.runtime.onMessage.addListener((msg) => {
         isPlaying = true;
         toggleGlobalPauseClass();
         sendMsg({ action: 'GET_STATUS' }, updateUI);
+    } else if (msg.type === 'TRACK_ENDED') {
+        // Terminó y no empieza otra todavía (espera entre canciones o Random: No)
+        sendMsg({ action: 'GET_STATUS' }, updateUI);
     }
 });
 
