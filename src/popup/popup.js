@@ -77,6 +77,21 @@ function sendMsg(msg, callback) {
     } catch (e) { console.error(e); }
 }
 
+// Pide el estado al motor y reintenta si todavía no responde.
+// No usa sendMsg porque este ignora las respuestas vacías y los errores.
+function requestStatus(retries = 3) {
+    try {
+        chrome.runtime.sendMessage({ action: 'GET_STATUS' }, (response) => {
+            if (!chrome.runtime.lastError && response) {
+                updateUI(response);
+            } else if (retries > 0) {
+                console.log("El motor de audio se está despertando...");
+                setTimeout(() => requestStatus(retries - 1), 1000);
+            }
+        });
+    } catch (e) { console.error(e); }
+}
+
 async function init() {
      try {
         // 1. Abrir Base de Datos para pintar la lista
@@ -98,15 +113,7 @@ async function init() {
 
             // 2. INTENTAR CONECTAR CON EL MOTOR DE AUDIO
             // Intentamos enviar un mensaje. Si falla, el background lo interceptará y creará el offscreen.
-            sendMsg({ action: 'GET_STATUS' }, (response) => {
-                if (response) {
-                    updateUI(response);
-                } else {
-                    console.log("El motor de audio se está despertando...");
-                    // Reintentar en 1 segundo por si estaba cargando
-                    setTimeout(() => sendMsg({ action: 'GET_STATUS' }, updateUI), 1000);
-                }
-            });
+            requestStatus();
         };
     } catch (err) {
         console.error("Error iniciando Popup:", err);
