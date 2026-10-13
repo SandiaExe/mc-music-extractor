@@ -129,6 +129,40 @@ function updateOpacity() {
 }
 
 
+// --- KEYBOARD SHORTCUTS GUIDE ---
+
+const COMMAND_LABELS = { 'play-pause': 'playPause', 'next-track': 'nextTrack', 'prev-track': 'prevTrack' };
+
+// Lists the shortcuts as they are currently assigned (the user can change them)
+function renderShortcuts() {
+    const list = document.getElementById('shortcutList');
+    if (!list || !chrome.commands) return;
+    chrome.commands.getAll((commands) => {
+        list.innerHTML = "";
+        commands.forEach(cmd => {
+            const labelKey = COMMAND_LABELS[cmd.name];
+            if (!labelKey) return;
+            const li = document.createElement('li');
+            const name = document.createElement('strong');
+            name.textContent = t(labelKey) + ': ';
+            const key = document.createElement('code');
+            key.textContent = cmd.shortcut || t('shortcutNotSet');
+            li.append(name, key);
+            list.appendChild(li);
+        });
+    });
+}
+
+renderShortcuts();
+// Refresh after coming back from the shortcuts page
+window.addEventListener('focus', renderShortcuts);
+
+const btnShortcuts = document.getElementById('btnShortcuts');
+if (btnShortcuts) {
+    btnShortcuts.addEventListener('click', () => chrome.tabs.create({ url: 'chrome://extensions/shortcuts' }));
+}
+
+
 // --- MUSIC IMPORTER ---
 
 const ui = {

@@ -100,6 +100,28 @@
       border: 1px solid #333;
     }
 
+    /* Dos guías seguidas van más juntas */
+    details.guide-box:has(+ details.guide-box) {
+      margin-bottom: 12px;
+    }
+
+    .guide-content button {
+      cursor: pointer;
+      margin-top: 4px;
+      padding: 6px 12px;
+      background-color: var(--accent, var(--opt-fallback-accent));
+      color: #111;
+      font-family: var(--font-game);
+      font-size: 12px;
+      font-weight: bold;
+      border: 2px solid #111;
+      border-radius: 2px;
+    }
+
+    .guide-content button:hover {
+      background-color: var(--accent-hover, #a5d69d);
+    }
+
     /* --- Upload Area --- */
     .upload-area {
       border: 2px dashed var(--border-sky, #444);
@@ -320,6 +342,15 @@
           <li><strong>Linux:</strong> <code>~/.minecraft/assets</code></li>
         </ul>
         <p data-i18n-html="guideSelect">Select the root <strong>assets</strong> folder (the one containing "indexes" and "objects").</p>
+      </div>
+    </details>
+
+    <details class="guide-box">
+      <summary data-i18n="shortcutsSummary">Keyboard shortcuts</summary>
+      <div class="guide-content">
+        <p data-i18n="shortcutsHint">Control the music without opening the player. You can change these shortcuts or assign your media keys to them.</p>
+        <ul id="shortcutList" style="padding-left: 20px; margin: 10px 0;"></ul>
+        <button id="btnShortcuts" data-i18n="shortcutsChange">Change shortcuts</button>
       </div>
     </details>
 

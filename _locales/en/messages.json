@@ -211,5 +211,17 @@
   },
   "filterTitle": {
     "message": "Random modes only play this composer. Click to change it."
+  },
+  "shortcutsSummary": {
+    "message": "Keyboard shortcuts"
+  },
+  "shortcutsHint": {
+    "message": "Control the music without opening the player. You can change these shortcuts or assign your media keys to them."
+  },
+  "shortcutsChange": {
+    "message": "Change shortcuts"
+  },
+  "shortcutNotSet": {
+    "message": "Not set"
   }
 }

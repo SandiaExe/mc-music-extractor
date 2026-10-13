@@ -211,5 +211,17 @@
   },
   "filterTitle": {
     "message": "Los modos aleatorios solo reproducen a este compositor. Haz clic para cambiarlo."
+  },
+  "shortcutsSummary": {
+    "message": "Atajos de teclado"
+  },
+  "shortcutsHint": {
+    "message": "Controla la música sin abrir el reproductor. Puedes cambiar estos atajos o asignarles tus teclas multimedia."
+  },
+  "shortcutsChange": {
+    "message": "Cambiar atajos"
+  },
+  "shortcutNotSet": {
+    "message": "Sin asignar"
   }
 }
