@@ -44,7 +44,6 @@ async function processMessage(msg) {
     try {
         switch (msg.action) {
             case 'START_AUTOPLAY':
-                shuffleMode = 0; // Random OST por defecto
                 // Si se recuperó la canción de la sesión anterior, continuar con ella
                 if (currentTrackName) {
                     try { await audio.play(); } catch (e) { playNext(); }
@@ -82,6 +81,7 @@ async function processMessage(msg) {
 
             case 'SET_SHUFFLE': 
                 shuffleMode = msg.mode; 
+                saveState({ shuffleMode });
                 return { status: 'mode_set' };
             
             case 'SET_ONLY_C418':
@@ -292,7 +292,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -310,6 +310,7 @@ async function loadSettings() {
     audio.volume = vol / 100;
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
     onlyC418 = data.onlyC418 === true;
+    if ([0, 1, 2, 3].includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
     return data;
 }
 
