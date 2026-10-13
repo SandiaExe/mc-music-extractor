@@ -25,6 +25,28 @@ export const DISC_MAP = {
     'bounce.ogg': 'Bounce'
 };
 
+// Pistas compuestas por C418 (OST y discos), por nombre de archivo
+export const C418_TRACKS = new Set([
+    // Overworld
+    'calm1.ogg', 'calm2.ogg', 'calm3.ogg',
+    'hal1.ogg', 'hal2.ogg', 'hal3.ogg', 'hal4.ogg',
+    'nuance1.ogg', 'nuance2.ogg',
+    'piano1.ogg', 'piano2.ogg', 'piano3.ogg',
+    // Creative
+    'creative1.ogg', 'creative2.ogg', 'creative3.ogg', 'creative4.ogg', 'creative5.ogg', 'creative6.ogg',
+    // Menu
+    'menu1.ogg', 'menu2.ogg', 'menu3.ogg', 'menu4.ogg',
+    // Nether
+    'nether1.ogg', 'nether2.ogg', 'nether3.ogg', 'nether4.ogg',
+    // End
+    'boss.ogg', 'end.ogg', 'credits.ogg',
+    // Underwater
+    'axolotl.ogg', 'dragon_fish.ogg', 'shuniji.ogg',
+    // Music discs
+    '13.ogg', 'cat.ogg', 'blocks.ogg', 'chirp.ogg', 'far.ogg', 'mall.ogg',
+    'mellohi.ogg', 'stal.ogg', 'strad.ogg', 'ward.ogg', '11.ogg', 'wait.ogg'
+]);
+
 export const DB_NAME = "MCPlayerDB";
 export const DB_VERSION = 4;
 

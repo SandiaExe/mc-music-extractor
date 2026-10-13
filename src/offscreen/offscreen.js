@@ -1,4 +1,4 @@
-import { DISC_MAP, DB_NAME, DB_VERSION } from '../utils/consts.js';
+import { DISC_MAP, C418_TRACKS, DB_NAME, DB_VERSION } from '../utils/consts.js';
 
 const audio = document.getElementById('audio');
 
@@ -9,6 +9,7 @@ let playHistory = []; // Últimas N para smart shuffle
 let playOrderHistory = []; // Orden de reproducción para botón "anterior"
 let currentHistoryIndex = -1;
 let shuffleMode = 0; // 0=Random OST, 1=Random Discos, 2=Random Todo, 3=Random: No (sin auto/aleatorio)
+let onlyC418 = false; // Opción "Only C418": limita los modos aleatorios a pistas de C418
 let currentTrackName = null;
 let currentBlobUrl = null;
 const MAX_HISTORY = 5;
@@ -83,6 +84,10 @@ async function processMessage(msg) {
                 shuffleMode = msg.mode; 
                 return { status: 'mode_set' };
             
+            case 'SET_ONLY_C418':
+                onlyC418 = msg.value === true;
+                return { status: 'only_c418_set' };
+
             case 'TOGGLE_BAN': 
                 toggleBan(msg.trackName); 
                 return { status: 'banned', bannedList: bannedTracks };
@@ -222,6 +227,10 @@ function playNext() {
     }
 
     // Smart Shuffle (modos 0, 1, 2)
+    if (onlyC418) {
+        validPool = validPool.filter(t => C418_TRACKS.has(t));
+        if (validPool.length === 0) return;
+    }
     let candidates = validPool.filter(t => !playHistory.includes(t));
     if (candidates.length === 0) candidates = validPool.filter(t => t !== currentTrackName);
     if (candidates.length === 0) candidates = validPool;
@@ -283,7 +292,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -300,6 +309,7 @@ async function loadSettings() {
     const vol = data.defaultVolume !== undefined ? data.defaultVolume : 100;
     audio.volume = vol / 100;
     bannedTracks = Array.isArray(data.banned) ? data.banned : [];
+    onlyC418 = data.onlyC418 === true;
     return data;
 }
 

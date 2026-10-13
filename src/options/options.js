@@ -5,7 +5,8 @@ const els = {
     range: document.getElementById('rangeDelay'),
     val: document.getElementById('valDelay'),
     delayRow: document.getElementById('delayRow'),
-    themeSelect: document.getElementById('selectTheme')
+    themeSelect: document.getElementById('selectTheme'),
+    onlyC418: document.getElementById('checkOnlyC418')
 };
 
 function applyOptionsTheme(themeKey) {
@@ -19,13 +20,14 @@ function applyOptionsTheme(themeKey) {
 }
 
 // Load saved configuration
-chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme'], (data) => {
+chrome.storage.local.get(['autoplayEnabled', 'autoplayDelay', 'theme', 'onlyC418'], (data) => {
     const themeKey = data.theme || 'sage';
     applyOptionsTheme(themeKey);
     if (els.check) {
         els.check.checked = data.autoplayEnabled || false;
         updateOpacity();
     }
+    if (els.onlyC418) els.onlyC418.checked = data.onlyC418 === true;
     if (els.range) {
         els.range.value = data.autoplayDelay || 5;
         if (els.val) els.val.innerText = els.range.value + 's';
@@ -53,6 +55,15 @@ if (els.range) {
     els.range.addEventListener('input', () => {
         if (els.val) els.val.innerText = els.range.value + 's';
         chrome.storage.local.set({ autoplayDelay: parseInt(els.range.value) });
+    });
+}
+if (els.onlyC418) {
+    els.onlyC418.addEventListener('change', () => {
+        const value = els.onlyC418.checked;
+        // Guardar y avisar al motor de audio para que aplique el cambio sin reiniciar
+        chrome.storage.local.set({ onlyC418: value }, () => {
+            chrome.runtime.sendMessage({ action: 'SET_ONLY_C418', value }).catch(() => {});
+        });
     });
 }
 if (els.themeSelect) {
