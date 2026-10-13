@@ -4,6 +4,7 @@ import { getNiceName, DISC_MAP, DB_NAME, DB_VERSION, THEMES } from '../utils/con
 
 const ui = {
     skyTitle: document.getElementById('skyTitle'),
+    skyLabel: document.getElementById('skyLabel'),
     jukebox: document.getElementById('jukeboxContainer'),
     particleSys: document.getElementById('particleSystem'),
     search: document.getElementById('searchInput'),
@@ -55,6 +56,8 @@ let currentTrackId = null; // Para marcar "playing" en resultados de búsqueda
 /** Lista de todas las pistas { id, displayName } para el buscador */
 let allTracksForSearch = [];
 let lastNonZeroVolume = 1;
+let nextTrackAt = null; // Fin de la espera entre canciones (ms), si la hay
+let countdownInterval = null;
 
 function updateVolumeIcon(volume) {
     if (!ui.volIcon) return;
@@ -241,8 +244,29 @@ function renderSearchResults(query) {
     if (ui.librarySection) ui.librarySection.classList.add('hidden');
 }
 
+// Durante la espera entre canciones, la etiqueta muestra la cuenta atrás
+function updateCountdown() {
+    if (!ui.skyLabel) return;
+    if (!nextTrackAt) {
+        ui.skyLabel.textContent = 'Now playing:';
+        return;
+    }
+    const left = Math.max(0, Math.round((nextTrackAt - Date.now()) / 1000));
+    const sec = left % 60;
+    ui.skyLabel.textContent = `Next track in ${Math.floor(left / 60)}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+function setNextTrackAt(time) {
+    nextTrackAt = time || null;
+    clearInterval(countdownInterval);
+    countdownInterval = nextTrackAt ? setInterval(updateCountdown, 1000) : null;
+    updateCountdown();
+}
+
 function updateUI(status) {
     if (!status) return;
+
+    setNextTrackAt(status.nextTrackAt);
 
     if (status.bannedTracks) {
         bannedList = status.bannedTracks;

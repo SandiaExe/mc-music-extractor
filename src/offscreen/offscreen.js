@@ -14,6 +14,7 @@ let onlyC418 = false; // Opción "Only C418": limita los modos aleatorios a pist
 let gapMode = 'immediate';
 let gapSeconds = 10;
 let gapPending = false; // true mientras se espera para pasar a la siguiente
+let gapEndsAt = null; // Momento (ms) en que termina la espera, para mostrarlo en el popup
 let gapTimer = null;
 const LOCAL_GAP_MAX = 20000; // Por encima de esto la espera la lleva el service worker
 let currentTrackName = null;
@@ -129,6 +130,7 @@ async function processMessage(msg) {
                     volume: audio.volume, 
                     currentTrack: currentTrackName, 
                     shuffleMode: shuffleMode, 
+                    nextTrackAt: gapPending ? gapEndsAt : null,
                     bannedTracks: bannedTracks 
                 };
                 
@@ -280,7 +282,8 @@ function scheduleNext() {
         return;
     }
     gapPending = true;
-    saveState({ gapPending: true });
+    gapEndsAt = Date.now() + delay;
+    saveState({ gapPending: true, gapEndsAt });
     if (delay <= LOCAL_GAP_MAX) {
         gapTimer = setTimeout(playNext, delay);
     } else {
@@ -291,6 +294,7 @@ function scheduleNext() {
 function cancelGap() {
     if (!gapPending) return;
     gapPending = false;
+    gapEndsAt = null;
     clearTimeout(gapTimer);
     gapTimer = null;
     saveState({ gapPending: false });
@@ -351,7 +355,7 @@ function initPlaylist() {
 
 // Los documentos offscreen solo tienen chrome.runtime, no chrome.storage:
 // la lectura y escritura se hacen a través del service worker.
-const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending'];
+const STATE_KEYS = ['banned', 'defaultVolume', 'lastTrack', 'lastTime', 'onlyC418', 'shuffleMode', 'gapMode', 'gapSeconds', 'gapPending', 'gapEndsAt'];
 
 function saveState(data) {
     chrome.runtime.sendMessage({ type: 'SAVE_STATE', data }).catch(() => {});
@@ -372,6 +376,7 @@ async function loadSettings() {
     if (SHUFFLE_MODES.includes(data.shuffleMode)) shuffleMode = data.shuffleMode;
     applyGapSettings(data.gapMode, data.gapSeconds);
     gapPending = data.gapPending === true;
+    gapEndsAt = gapPending ? data.gapEndsAt : null;
     return data;
 }
 
